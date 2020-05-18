@@ -1,0 +1,83 @@
+# BEGIN NON_LSCACHE
+## LITESPEED WP CACHE PLUGIN - Do not edit the contents of this block! ##
+### marker MINIFY start ###
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} ^(.*)/min/(\w+)\.(css|js)$
+RewriteCond %1/wp-content/cache/$2/$1.$2 -f
+RewriteRule min/(\w+)\.(css|js) wp-content/cache/$2/$1.$2 [L]
+</IfModule>
+### marker MINIFY end ###
+
+## LITESPEED WP CACHE PLUGIN - Do not edit the contents of this block! ##
+# END NON_LSCACHE
+
+# BEGIN WordPress
+# The directives (lines) between `BEGIN WordPress` and `END WordPress` are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /tsr/
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /tsr/index.php [L]
+</IfModule>
+
+# END WordPress# BEGIN WTVCPBlockerSetEnvIfNoCase User-Agent "AhrefsBot" block_botSetEnvIfNoCase User-Agent "MJ12bot" block_botSetEnvIfNoCase User-Agent "Rogerbot" block_botSetEnvIfNoCase User-Agent "SemrushBot" block_botSetEnvIfNoCase User-Agent "ia_archiver" block_botSetEnvIfNoCase User-Agent "ScoutJet" block_botSetEnvIfNoCase User-Agent "sistrix" block_botSetEnvIfNoCase User-Agent "SearchmetricsBot" block_botSetEnvIfNoCase User-Agent "SEOkicks-Robot" block_botSetEnvIfNoCase User-Agent "Lipperhey Spider" block_botSetEnvIfNoCase User-Agent "Exabot" block_botSetEnvIfNoCase User-Agent "NCBot" block_botSetEnvIfNoCase User-Agent "BacklinkCrawler" block_botSetEnvIfNoCase User-Agent "meanpathbot" block_botSetEnvIfNoCase User-Agent "PagesInventory" block_botSetEnvIfNoCase User-Agent "Aboundexbot" block_botSetEnvIfNoCase User-Agent "spbot" block_botSetEnvIfNoCase User-Agent "linkdexbot" block_botSetEnvIfNoCase User-Agent "Gigabot" block_botSetEnvIfNoCase User-Agent "dotbot" block_botSetEnvIfNoCase User-Agent "Nutch" block_botSetEnvIfNoCase User-Agent "BLEXBot" block_botSetEnvIfNoCase User-Agent "Ezooms" block_botSetEnvIfNoCase User-Agent "Majestic-12" block_botSetEnvIfNoCase User-Agent "Majestic-SEO" block_botSetEnvIfNoCase User-Agent "DSearch" block_botSetEnvIfNoCase User-Agent "BlekkoBot" block_botSetEnvIfNoCase User-Agent "NerdyBot" block_botSetEnvIfNoCase User-Agent "JamesBOT" block_botSetEnvIfNoCase User-Agent "monitorbacklinks" block_bot<Limit GET POST HEAD>Order Allow,DenyAllow from allDeny from env=block_bot</Limit># END WTVCPBlocker
+# BEGIN WP-HUMMINGBIRD-GZIP
+# The directives (lines) between `BEGIN WP-HUMMINGBIRD-GZIP` and `END WP-HUMMINGBIRD-GZIP` are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_deflate.c>
+	SetOutputFilter DEFLATE
+    <IfModule mod_setenvif.c>
+        <IfModule mod_headers.c>
+            SetEnvIfNoCase ^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$ ^((gzip|deflate)\s*,?\s*)+|[X~-]{4,13}$ HAVE_Accept-Encoding
+            RequestHeader append Accept-Encoding "gzip,deflate" env=HAVE_Accept-Encoding
+        </IfModule>
+    </IfModule>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE "application/atom+xml" \
+                                      "application/javascript" \
+                                      "application/json" \
+                                      "application/ld+json" \
+                                      "application/manifest+json" \
+                                      "application/rdf+xml" \
+                                      "application/rss+xml" \
+                                      "application/schema+json" \
+                                      "application/vnd.geo+json" \
+                                      "application/vnd.ms-fontobject" \
+                                      "application/x-font-ttf" \
+                                      "application/x-font-opentype" \
+                                      "application/x-font-truetype" \
+                                      "application/x-javascript" \
+                                      "application/x-web-app-manifest+json" \
+                                      "application/xhtml+xml" \
+                                      "application/xml" \
+                                      "font/eot" \
+                                      "font/opentype" \
+                                      "font/otf" \
+                                      "image/bmp" \
+                                      "image/svg+xml" \
+                                      "image/vnd.microsoft.icon" \
+                                      "image/x-icon" \
+                                      "text/cache-manifest" \
+                                      "text/css" \
+                                      "text/html" \
+                                      "text/javascript" \
+                                      "text/plain" \
+                                      "text/vcard" \
+                                      "text/vnd.rim.location.xloc" \
+                                      "text/vtt" \
+                                      "text/x-component" \
+                                      "text/x-cross-domain-policy" \
+                                      "text/xml"
+
+    </IfModule>
+    <IfModule mod_mime.c>
+        AddEncoding gzip              svgz
+    </IfModule>
+</IfModule>
+# END WP-HUMMINGBIRD-GZIP
