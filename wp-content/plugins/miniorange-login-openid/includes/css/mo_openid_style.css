@@ -1,3 +1,38 @@
+/*licensing page css start*/
+
+.mo_lic_color{
+	color: #E97D68;
+}
+
+.mo_lic_color_bk{
+	color: #4F5458;
+}
+
+.mo_table-bordered-license, .mo_table-bordered-license > tbody > tr {
+	border: 1px solid #ddd;
+	height: 40px;
+	box-shadow: 0px 1px #ddd;
+	/*margin-left:25%; */
+}
+
+.mo_table-bordered-license > thead > tr > th {
+	vertical-align: top !important;
+}
+
+.mo-button-plan {
+	background-color: #E97D68;
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 15px;
+	cursor: pointer;
+	width: 100%;
+}
+/*licensing page css end*/
+
 #mo_shortcode_table {
 	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 	border-collapse: collapse;
@@ -454,7 +489,7 @@ input[type="button"]:hover {
 }
 .mo_openid_tooltip {
 	position: relative;
-	opacity: 2%;
+	/*opacity: 2%;*/
 
 }
 
@@ -468,8 +503,8 @@ input[type="button"]:hover {
 	padding: 5px 0;
 	position: absolute;
 	z-index: 1;
-	top: -5px;
-	left: 110%;
+	top: 95%;
+	left: 0%;
 }
 
 .mo_openid_tooltip .mo_openid_tooltiptext::after {

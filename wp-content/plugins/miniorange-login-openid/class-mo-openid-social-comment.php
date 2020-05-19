@@ -12,34 +12,32 @@
 				commentForm += '<li id="moopenid_social_comment_default" class="mo_openid_selected_tab"><?php echo esc_html(get_option("mo_openid_social_comment_default_label")) ?>(<?php echo ($commentsCount && isset($commentsCount -> approved) ? $commentsCount -> approved : '') ?>)</li>';
 				<?php } if(get_option('mo_openid_social_comment_fb')){ ?>
 				commentForm += '<li id="moopenid_social_comment_fb"><?php echo esc_html(get_option("mo_openid_social_comment_fb_label")) ?></li>';
-				<?php } if(get_option('mo_openid_social_comment_google')){ ?>
-				commentForm += '<li id="moopenid_social_comment_google"><?php echo esc_html(get_option("mo_openid_social_comment_google_label")) ?></li>';
+				<?php } if(get_option('mo_openid_social_comment_disqus')){ ?>
+				commentForm += '<li id="moopenid_social_comment_disqus"><?php echo esc_html(get_option("mo_openid_social_comment_disqus_label")) ?></li>';
 				<?php } ?>
 				commentForm += '</ul>';
 				commentForm += '<br/><div id="moopenid_comment_form_default" style="display:none;">';
 				commentForm += document.getElementById("respond").innerHTML;
 				commentForm += '</div>';
 				commentForm += '<div id="moopenid_comment_form_fb" style="display:none;"><div class="fb-comments" data-href=' + '"<?php echo esc_url($url) ?>"' + '></div></div>';
-				commentForm += '<br/><div id="moopenid_comment_form_google" style="display:none;"></div>';
+				commentForm += '<br/><div id="moopenid_comment_form_disqus" style="display:none;"><div id="disqus_thread"></div></div>';
 				commentForm += '</div>';
 				document.getElementById("respond").innerHTML = commentForm;
 				document.getElementById("reply-title")&&jQuery("#reply-title").remove();
 
-				<?php $mo_disqus_shortname = get_option("mo_openid_social_comment_disqus_shortname"); ?>
-				var sg1 = document.createElement("script");
-				sg1.src = 'https://apis.google.com/js/plusone.js?onload=gapiCallback';
-				var divComm = document.createElement("div");
-				divComm.id = "google-comments";
-				document.getElementById("moopenid_comment_form_google").appendChild(divComm);
-				document.getElementById("moopenid_comment_form_google").appendChild(sg1);
+                (function() {  // REQUIRED CONFIGURATION VARIABLE: EDIT THE SHORTNAME BELOW
+			        var d = document, s = d.createElement('script');
+			        
+			        // IMPORTANT: Replace EXAMPLE with your forum shortname!
+			        s.src = 'https://<?php echo get_option('mo_disqus_shortname'); ?>.disqus.com/embed.js';
+			        
+			        s.setAttribute('data-timestamp', +new Date());
+			        (d.head || d.body).appendChild(s);
+			    })();
+				
 			}
 		}
 
-		window.gapiCallback = function(){
-			var sg2 = document.createElement("script");
-			sg2.innerHTML = 'gapi.comments.render("google-comments", {href: window.location, width: "624", first_party_property: "BLOGGER", view_type: "FILTERED_POSTMOD" });';
-			document.getElementById("moopenid_comment_form_google").appendChild(sg2);
-		}
 		</script>
 		<?php
 	}
@@ -59,34 +57,34 @@
 		$html .= '} else if(document.getElementById("moopenid_social_comment_fb")) {';
 		$html .= 'jQuery("#moopenid_comment_form_fb").attr("style","display:block");';
 		$html .= 'jQuery("#moopenid_social_comment_fb").addClass("mo_openid_selected_tab");';
-		$html .= '} else if(document.getElementById("moopenid_social_comment_google")){';
-		$html .= 'Query("#moopenid_comment_form_google").attr("style","display:block");';
-		$html .= 'jQuery("#moopenid_social_comment_google").addClass("mo_openid_selected_tab");';
+		$html .= '} else if(document.getElementById("moopenid_social_comment_disqus")){';
+		$html .= 'Query("#moopenid_comment_form_disqus").attr("style","display:block");';
+		$html .= 'jQuery("#moopenid_social_comment_disqus").addClass("mo_openid_selected_tab");';
 		$html .= '}';
 
 		$html .= 'jQuery("#moopenid_social_comment_fb").click(function(){';
 		$html .= 'jQuery("#moopenid_comment_form_fb").attr("style","display:block");';
-		$html .= 'jQuery("#moopenid_comment_form_google").attr("style","display:none");';
+		$html .= 'jQuery("#moopenid_comment_form_disqus").attr("style","display:none");';
 		$html .= 'jQuery("#moopenid_comment_form_default").attr("style","display:none");';
 		$html .= 'jQuery("#moopenid_social_comment_fb").addClass("mo_openid_selected_tab");';
 		$html .= 'jQuery("#moopenid_social_comment_default").removeClass("mo_openid_selected_tab");';
-		$html .= 'jQuery("#moopenid_social_comment_google").removeClass("mo_openid_selected_tab");';
+		$html .= 'jQuery("#moopenid_social_comment_disqus").removeClass("mo_openid_selected_tab");';
 		$html .= '});';
 		$html .= 'jQuery("#moopenid_social_comment_default").click(function(){';
 		$html .= 'jQuery("#moopenid_comment_form_fb").attr("style","display:none");';
-		$html .= 'jQuery("#moopenid_comment_form_google").attr("style","display:none");';
+		$html .= 'jQuery("#moopenid_comment_form_disqus").attr("style","display:none");';
 		$html .= 'jQuery("#moopenid_comment_form_default").attr("style","display:block");';
 		$html .= 'jQuery("#moopenid_social_comment_fb").removeClass("mo_openid_selected_tab");';
 		$html .= 'jQuery("#moopenid_social_comment_default").addClass("mo_openid_selected_tab");';
-		$html .= 'jQuery("#moopenid_social_comment_google").removeClass("mo_openid_selected_tab");';
+		$html .= 'jQuery("#moopenid_social_comment_disqus").removeClass("mo_openid_selected_tab");';
 		$html .= '});';
-		$html .= 'jQuery("#moopenid_social_comment_google").click(function(){';
+		$html .= 'jQuery("#moopenid_social_comment_disqus").click(function(){';
 		$html .= 'jQuery("#moopenid_comment_form_fb").attr("style","display:none");';
-		$html .= 'jQuery("#moopenid_comment_form_google").attr("style","display:block");';
+		$html .= 'jQuery("#moopenid_comment_form_disqus").attr("style","display:block");';
 		$html .= 'jQuery("#moopenid_comment_form_default").attr("style","display:none");';
 		$html .= 'jQuery("#moopenid_social_comment_fb").removeClass("mo_openid_selected_tab");';
 		$html .= 'jQuery("#moopenid_social_comment_default").removeClass("mo_openid_selected_tab");';
-		$html .= 'jQuery("#moopenid_social_comment_google").addClass("mo_openid_selected_tab");';
+		$html .= 'jQuery("#moopenid_social_comment_disqus").addClass("mo_openid_selected_tab");';
 		$html .= '});';
 
 		$html .= '}';

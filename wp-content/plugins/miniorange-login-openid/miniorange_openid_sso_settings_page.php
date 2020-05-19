@@ -13,7 +13,6 @@ require('view/gdpr/mo_openid_gdpr.php');
 require('view/integration/mo_openid_integrate.php');
 require('view/licensing_plans/mo_openid_lic_plans.php');
 require('view/link_social_account/mo_openid_Acclink.php');
-require('view/mo_new/mo_openid_whats_new.php');
 require('view/premium_features/mo_openid_prem_feat.php');
 require('view/privacy_policy/mo_openid_priv_pol.php');
 require('view/profile_completion/mo_openid_prof_comp.php');
@@ -34,29 +33,12 @@ require('view/soc_com/com_select_app/mo_openid_comm_select_app.php');
 require('view/soc_com/com_Enable/mo_openid_comm_enable.php');
 require('view/soc_com/com_shrtco/comm_shrtco.php');
 include('view/add_on/custom_registration_form.php');
+include('view/mo_new/mo_openid_whats_new.php');
 
 function mo_register_openid() {
 ?>
-    <div id="upgrade_notice" class="update-nag" style="width: 92.5%;margin-left: 0%;"><strong>Special March Offer for WOOCOMMERCE INTEGRATION. Click here to                 <a id="pricing" style="background: #FFA335;border-color: #FFA335;color: white;" class="button" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('Upgrade Now');?></a>
+    <div id="upgrade_notice" class="update-nag" style="width: 92.5%;margin-left: 0%;"><strong>Special WOOCOMMERCE, BUDDYPRESS & MAILCHIMP INTEGRATION PLUGINS. Click here to <a id="pricing" style="background: #FFA335;border-color: #FFA335;color: white;" class="button" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('Upgrade Now');?></a>
         </strong></div>
-    <div id="myModalwoo_not" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <strong><h1 style="padding-left: 5%;color: darkblue"> WOOCOMMERCE INTEGRATION PLAN $19</h1><hr><p style="padding-left: 40%;font-size:18px;color:red">Special March Offer</p></strong>
-            <h4><strong>Features Included</strong></h4>   <input type="submit"  name="submit" value="<?php echo mo_sl('UPGRADE NOW');?>" style="float:right;width:150px;background-color:#0867b2;color:white;box-shadow:none;text-shadow: none;"  class="button button-primary button-large" /></b>
-            <h4>Woocommerce Display Options(STANDARD PLAN) <strike style="color: maroon;font-size:20px;font-weight: bold">$29</strike></h4>
-            <h4>Woocommerce integration + Display Options(PREMIUM PLAN) <strike style="color: maroon;font-size:20px;font-weight: bold">$49</strike></h4>
-            <label class="mo_openid_note_style">
-                We provide Woocommerece integration in our premium plan which includes Woocommerece integration and various Woocommerce display options along with other integration for $49.
-                We provide only Woocommerece display options in our standard plan along with other standard features for $29.
-                But now we have a special March offer for you this month, you can avail the Woocommerce integration and various Woocommerce display options with the free plugin features only at $19.
-            </label>
-            <p><strong style="color: #0000A0">Feature Description</strong>
-                Using Woocommerce integration you will get all the text fields at the checkout form pre-filled.</p>
-        </div>
-
-    </div>
 <?php
     
     if( isset( $_GET[ 'tab' ]) && $_GET[ 'tab' ] !== 'register' ) {
@@ -81,7 +63,7 @@ function mo_register_openid() {
                 <td> <a id="forum" style="margin-top: 23px" class="button" <?php echo $active_tab == 'forum' ? 'nav-tab-active' : ''; ?>" href="https://wordpress.org/support/plugin/miniorange-login-openid/" target="_blank"><?php echo mo_sl('Forum');?></a></td>
                 <td> <a id="addon" style="margin-top: 23px;background: #FFA335;border-color: #FFA335;color: white;" class="button" <?php echo $active_tab == 'add_on' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'add_on'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('Add On');?></a></td>
                 <td> <a id="pricing" style="margin-top: 23px;background: #FFA335;border-color: #FFA335;color: white;" class="button"<?php echo $active_tab == 'licensing_plans' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('Upgrade Now');?></a></td>
-                <td> <a id="miniorange_new" style="margin-top: 23px;background: #62B772;border-color: #62B772;color: white;" class="button"<?php echo $active_tab == 'miniorange_new' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'miniorange_new'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl("What's new in miniOrange");?></a></td>
+                <td> <a id="whats_new" style="margin-top: 23px;background: #62B772;border-color: #62B772;color: white;" class="button"<?php echo $active_tab == 'whats_new' ? 'nav-tab-active' : ''; ?>" href="<?php echo add_query_arg( array('tab' => 'whats_new'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl("What's new in miniOrange");?></a></td>
                 <td>
                     <a id="mo_openid_rateus_modal" onclick="asdf(this)" style="margin-top: 23px" class="button" ><?php echo mo_sl('Rate us');?></a>
                 </td>
@@ -138,8 +120,8 @@ function mo_register_openid() {
                                     case 'licensing_plans':
                                         mo_openid_licensing_plans();
                                         break;
-                                    case 'miniorange_new':
-                                        mo_openid_miniorange_new();
+                                        case 'whats_new':
+                                            mo_openid_miniorange_new();
                                         break;
                                     case 'config_apps':
                                         mo_openid_show_apps();

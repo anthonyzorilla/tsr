@@ -234,6 +234,20 @@ function mo_openid_insert_query($social_app_name,$user_email,$userid,$social_app
     }
 }
 
+function mo_openid_start_session_login($session_values){
+    mo_openid_start_session();
+    $_SESSION['mo_login'] = true;
+    $_SESSION['registered_user']='1';
+    $_SESSION['username'] = isset($session_values['username']) ? $session_values['username'] : '';
+    $_SESSION['user_email'] = isset($session_values['user_email']) ? $session_values['user_email'] : '';
+    $_SESSION['user_full_name'] = isset($session_values['user_full_name']) ? $session_values['user_full_name'] : '';
+    $_SESSION['first_name'] = isset($session_values['first_name']) ? $session_values['first_name'] : '';
+    $_SESSION['last_name'] = isset($session_values['last_name']) ? $session_values['last_name'] : '';
+    $_SESSION['user_url'] = isset($session_values['user_url']) ? $session_values['user_url'] : '';
+    $_SESSION['user_picture'] = isset($session_values['user_picture']) ? $session_values['user_picture'] : '';
+    $_SESSION['social_app_name'] = isset($session_values['social_app_name']) ? $session_values['social_app_name'] : '';
+    $_SESSION['social_user_id'] = isset($session_values['social_user_id']) ? $session_values['social_user_id'] : '';
+}
 function mo_openid_login_user($linked_email_id,$user_id,$user,$user_picture,$user_mod_msg){
     if (get_option('moopenid_social_login_avatar') && isset($user_picture))
         update_user_meta($user_id, 'moopenid_user_avatar', $user_picture);
@@ -263,11 +277,8 @@ function mo_openid_login_user($linked_email_id,$user_id,$user,$user_picture,$use
             exit();
         }
     }
-    else {
-        wp_set_current_user($user_id);
-        wp_set_auth_cookie($user_id);
+    else
         do_action('wp_login', $user->user_login, $user);
-    }
     exit;
 }
 

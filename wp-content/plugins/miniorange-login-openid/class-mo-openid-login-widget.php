@@ -1,6 +1,6 @@
 <?php
 include "mo-openid-social-login-functions.php";
-add_action( 'wp_login', 'mo_openid_link_account', 5, 3);
+add_action( 'wp_login', 'mo_openid_link_account', 5, 2);
 add_action( 'mo_user_register', 'mo_openid_update_role', 1, 2);
 add_action( 'mo_user_register','mo_openid_send_email',1, 2 );
 if(get_option('mo_openid_popup_window')=='0') {
@@ -85,8 +85,7 @@ class mo_openid_login_wid extends WP_Widget {
         $customLogoutLink = get_option('mo_openid_login_widget_customize_logout_text');
         $customTextColor=esc_attr(get_option('mo_login_openid_login_widget_customize_textcolor'));
         $customText=esc_html(get_option('mo_openid_login_widget_customize_text'));
-
-        $app_pos = get_option('app_pos');
+        $application_pos = get_option('app_pos');
 
         if(get_option('mo_openid_gdpr_consent_enable')) {
             $gdpr_setting = "disabled='disabled'";
@@ -111,424 +110,40 @@ class mo_openid_login_wid extends WP_Widget {
             setcookie("mo_openid_signup_url",  $mo_URL, time() + (86400 * 30), "/");}
         else{
             setcookie("mo_openid_signup_url", $sign_up_url, time() + (86400 * 30), "/");}
-
+        if(get_option('mo_openid_gdpr_consent_enable'))
+        {
+            $dis =  "dis";
+        }
+        else{
+            $dis = '';
+        }
         if( ! is_user_logged_in() ) {
-            if( $appsConfigured ) {
-                $this->mo_openid_load_login_script();
-                ?>
+            $values=array(
+                'appsConfigured' => $appsConfigured,
+                'selected_apps' => '',
+                'application_pos' => $application_pos,
+                'customTextColor' => $customTextColor,
+                'customText' => $customText,
+                'consent_message' => $consent_message,
+                'selected_theme' => $selected_theme,
+                'view' => '',
+                'gdpr_setting' => $gdpr_setting,
+                'spacebetweenicons' => $spacebetweenicons,
+                'customWidth' => $customWidth,
+                'customHeight' => $customHeight,
+                'customBoundary' => $customBoundary,
+                'buttonText' => $customTextofTitle,
+                'dis' => $dis,
+                'customTextofTitle' => $customTextofTitle,
+                'customSize' => $customSize,
+                'html' => '',
+                'customBackground' => $customBackground,
+                'customTheme' => $customTheme,
+            );
+            $html=$this->display_apps($values);
+            $html.='<br/>';
+            echo $html;
 
-                <div class="mo-openid-app-icons">
-
-                    <p style="color:#<?php echo $customTextColor ?>"><?php   echo $customText ?>
-                    </p>
-                    <?php if(get_option('mo_openid_gdpr_consent_enable')){
-                        $consent_message = isset($consent_message) ? $consent_message: ''; ?>
-                        <input type="checkbox" onchange="mo_openid_on_consent_change(this)" value="1" id="mo_openid_consent_checkbox"><label class="mo-consent"><?php echo $consent_message;?></label>
-                        <br>
-                    <?php }
-                    $app_pos=explode("#",$app_pos);
-                    foreach ($app_pos as $select_apps) {
-                        if (get_option('mo_openid_' . $select_apps . '_enable') == 1) {
-                            $custom_app = esc_attr($this->if_custom_app_exists($select_apps));
-                            if ($customTheme == "default") {
-                                switch ($select_apps) {
-                                    case 'facebook':
-                                        if ($selected_theme == 'longbutton') {
-                                            ?>
-                                            <a rel='nofollow' <?php echo $gdpr_setting; ?>
-                                               onClick="moOpenIdLogin('facebook','<?php echo $custom_app ?>');"
-                                               style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight - 29 ?>px !important;padding-bottom:<?php echo $customHeight - 29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons - 5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;"
-                                               class="btn-mo btn btn-block btn-social btn-facebook  btn-custom-size login-button">
-                                                <svg xmlns="http://www.w3.org/2000/svg" style="padding-top: <?php echo $customHeight - 31 ?>px;border-right:none;margin-left: 2%;"><path fill="#fff" d="M22.688 0H1.323C.589 0 0 .589 0 1.322v21.356C0 23.41.59 24 1.323 24h11.505v-9.289H9.693V11.09h3.124V8.422c0-3.1 1.89-4.789 4.658-4.789 1.322 0 2.467.1 2.8.145v3.244h-1.922c-1.5 0-1.801.711-1.801 1.767V11.1h3.59l-.466 3.622h-3.113V24h6.114c.734 0 1.323-.589 1.323-1.322V1.322A1.302 1.302 0 0 0 22.688 0z"/></svg>
-                                                <?php echo get_option('mo_openid_login_button_customize_text'); ?> Facebook</a>
-                                            <?php
-                                        }
-                                        else {
-                                            ?>
-                                            <a class="<?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                                echo "dis";
-                                            } ?> login-button" rel='nofollow'
-                                               title="<?php echo $customTextofTitle ?> Facebook" onClick="moOpenIdLogin('facebook','<?php echo $custom_app ?>');">
-                                                <img alt='Facebook' style="width:<?php echo $customSize ?>px !important;height:<?php echo $customSize ?>px !important;margin-left:<?php echo $spacebetweenicons - 4 ?>px !important"
-                                                 src="<?php echo plugins_url('includes/images/icons/facebook.png', __FILE__) ?>" class="<?php echo $selected_theme; ?>
-                                                 <?php if (get_option('mo_openid_gdpr_consent_enable')) {echo "dis";} ?> login-button"></a>
-                                            <?php
-                                        }
-                                        break;
-                                    case 'google':
-                                        if ($selected_theme == 'longbutton') {
-                                            ?>
-                                            <a rel='nofollow' <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('google','<?php echo $custom_app ?>');"
-                                               style='background: rgb(255,255,255)!important; background:linear-gradient(90deg, rgba(255,255,255,1) 38px, rgb(79, 113, 232) 5%) !important; width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight - 29 ?>px !important;padding-bottom:<?php echo $customHeight - 29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons - 5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;border-color: rgba(79, 113, 232, 1);border-bottom-width: thin;'
-                                               class='btn-mo btn btn-block btn-social btn-google btn-custom-size login-button'>
-                                                <i style='border-right:none;padding-top:<?php echo $customHeight - 29 ?>px !important'
-                                                   class='mofa'><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 70" style="padding-left: 8%;" ><defs><path id="a" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></defs><clipPath id="b"><use xlink:href="#a" overflow="visible"/></clipPath><path clip-path="url(#b)" fill="#FBBC05" d="M0 37V11l17 13z"/><path clip-path="url(#b)" fill="#EA4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path clip-path="url(#b)" fill="#34A853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path clip-path="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/></svg></i><span style="color:#FFFFFF;"><?php echo get_option('mo_openid_login_button_customize_text'); ?> Google</span></a>
-                                        <?php }
-                                        else { ?>
-                                            <a class="<?php if (get_option('mo_openid_gdpr_consent_enable')) { echo "dis";} ?> login-button" rel='nofollow' onClick="moOpenIdLogin('google','<?php echo $custom_app ?>');" title="<?php echo $customTextofTitle ?> Google"><img alt='Google'
-                                             style="width:<?php echo $customSize ?>px !important;height:<?php echo $customSize ?>px !important;margin-left:<?php echo $spacebetweenicons - 4 ?>px !important"
-                                              src="<?php echo plugins_url('includes/images/icons/google.png', __FILE__) ?>" class="<?php echo $selected_theme; ?> <?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                              echo "dis";} ?> login-button"></a>
-                                            <?php
-                                        }
-                                        break;
-
-                                    case 'vkontakte':
-                                        if($selected_theme == 'longbutton'){
-                                            ?>
-
-                                            <a  rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('vkontakte','<?php echo $custom_app?>');" style='width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;' class='btn-mo btn btn-block btn-social btn-vk btn-custom-size login-button' > <i style='padding-top:<?php echo $customHeight-35 ?>px !important' class='mofa mofa-vk'></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Vkontakte</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('vkontakte','<?php echo $custom_app?>');"  title="<?php echo $customTextofTitle ?> Vkontakte" ><img alt='Vkontakte' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/vk.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" ></a>
-                                            <?php
-                                        }
-                                        break;
-                                    case 'twitter':
-                                        if ($selected_theme == 'longbutton') {
-                                            ?> <a rel='nofollow' <?php echo $gdpr_setting; ?>
-                                                  onClick="moOpenIdLogin('twitter','<?php echo $custom_app ?>');"
-                                                  style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight - 29 ?>px !important;padding-bottom:<?php echo $customHeight - 29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons - 5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;"
-                                                  class="btn-mo btn btn-block btn-social btn-twitter btn-custom-size login-button">
-                                                <i style="padding-top:<?php echo $customHeight - 35 ?>px !important"
-                                                   class="mofa mofa-twitter"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); ?> Twitter</a>
-                                        <?php } else { ?>
-
-
-                                            <a class="<?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                                echo "dis";
-                                            } ?> login-button" rel='nofollow' <?php echo $gdpr_setting; ?>
-                                               title="<?php echo $customTextofTitle ?> Twitter"
-                                               onClick="moOpenIdLogin('twitter','<?php echo $custom_app ?>');"><img
-                                                        alt='Twitter'
-                                                        style="width:<?php echo $customSize ?>px !important;height:<?php echo $customSize ?>px !important;margin-left:<?php echo $spacebetweenicons - 4 ?>px !important"
-                                                        src="<?php echo plugins_url('includes/images/icons/twitter.png', __FILE__) ?>"
-                                                        class="<?php echo $selected_theme; ?> <?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                                            echo "dis";
-                                                        } ?> login-button"></a>
-                                        <?php }
-                                        break;
-                                    case 'linkedin':
-                                        if($selected_theme == 'longbutton'){ ?>
-                                            <a rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('linkedin','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-linkedin btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-linkedin"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> LinkedIn</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  <?php echo $gdpr_setting; ?> title="<?php echo $customTextofTitle ?> LinkedIn" onClick="moOpenIdLogin('linkedin','<?php echo $custom_app?>');"><img alt='LinkedIn' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/linkedin.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> btn-mo login-button" ></a>
-                                        <?php }
-                                        break;
-                                    case 'instagram':
-                                        if($selected_theme == 'longbutton'){	?>
-                                            <a rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('instagram','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-instagram btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-instagram"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Instagram</a>
-                                        <?php }
-                                        else{ ?>
-
-
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  <?php echo $gdpr_setting; ?> title="<?php echo $customTextofTitle ?> Instagram" onClick="moOpenIdLogin('instagram','<?php echo $custom_app?>');"><img alt='Instagram' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important"  src="<?php echo plugins_url( 'includes/images/icons/instagram.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"></a>
-                                        <?php }
-                                        break;
-                                    case 'amazon':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('amazon','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-soundcloud btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-amazon"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); ?> Amazon</a>
-                                        <?php }
-                                        else{ ?>
-
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' <?php echo $gdpr_setting; ?> title="<?php echo $customTextofTitle ?> Amazon" onClick="moOpenIdLogin('amazon','<?php echo $custom_app?>');"><img alt='Amazon' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important"  src="<?php echo plugins_url( 'includes/images/icons/amazon.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"></a>
-                                        <?php }
-                                        break;
-                                    case 'salesforce':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a  rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('salesforce','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-vimeo btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-cloud"></i> <?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Salesforce</a>
-                                        <?php }
-                                        else{ ?>
-
-
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  <?php echo $gdpr_setting; ?> title="<?php echo $customTextofTitle ?> Salesforce" onClick="moOpenIdLogin('salesforce','<?php echo $custom_app?>');"><img alt='Salesforce' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important"  src="<?php echo plugins_url( 'includes/images/icons/salesforce.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" ></a>
-                                        <?php }
-                                        break;
-                                    case 'windowslive':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'  <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('windowslive','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-microsoft btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-windows"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Microsoft</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  <?php echo $gdpr_setting; ?> title="<?php echo $customTextofTitle ?> Microsoft" onClick="moOpenIdLogin('windowslive','<?php echo $custom_app?>');"><img alt='Windowslive' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important"  src="<?php echo plugins_url( 'includes/images/icons/windowslive.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"></a>
-                                        <?php }
-                                        break;
-                                    case 'yahoo':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('yaahoo','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-yahoo  btn-custom-size login-button"  > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-yahoo"></i><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Yahoo</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Yahoo" onClick="moOpenIdLogin('yaahoo','<?php echo $custom_app?>');"><img alt='Yahoo' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/yahoo.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'wordpress':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('wordpress','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-wordpress btn-custom-size login-button"  > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-wordpress"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); ?> wordpress</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Wordpress" onClick="moOpenIdLogin('wordpress','<?php echo $custom_app?>');"><img alt='Wordpress' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/wordpress.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'disqus':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('disqus','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-disqus  btn-custom-size login-button"  > <img  class="mofa"  style="padding-top:<?php echo $customHeight-35 ?>px !important; margin-top: 0" src="<?php echo plugins_url( 'includes/images/icons/disq.png', __FILE__ )?>"><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Disqus</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Disqus" onClick="moOpenIdLogin('disqus','<?php echo $custom_app?>');"><img alt='Disqus' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/disqus.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'pinterest':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('pinterest','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-pinterest  btn-custom-size login-button"  > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-pinterest"></i><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Pinterest</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Pinterest" onClick="moOpenIdLogin('pinterest','<?php echo $custom_app?>');"><img alt='Pinterest' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/pinterest.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'twitch':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('twitch','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-twitch  btn-custom-size login-button"  > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-twitch"></i><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Twitch</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Twitch" onClick="moOpenIdLogin('twitch','<?php echo $custom_app?>');"><img alt='Twitch' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/twitch.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'vimeo':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('vimeo','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-vimeo  btn-custom-size login-button"  > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-vimeo"></i><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Vimeo</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Vimeo" onClick="moOpenIdLogin('vimeo','<?php echo $custom_app?>');"><img alt='Vimeo' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/vimeo.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-                                    case 'kakao':
-                                        if($selected_theme == 'longbutton'){
-                                            ?><a  rel='nofollow' <?php echo $gdpr_setting; ?>  onClick="moOpenIdLogin('kakao','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-kakao  btn-custom-size login-button"  > <img  class="mofa"  style="padding-top:<?php echo $customHeight-35 ?>px !important; margin-top: 0" src="<?php echo plugins_url( 'includes/images/icons/kaka.png', __FILE__ )?>"><?php
-                                            echo get_option('mo_openid_login_button_customize_text'); ?> Kakao</a>
-                                            <?php
-                                        }else{
-                                            ?><a  class=" <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' title="<?php echo $customTextofTitle ?> Kakao" onClick="moOpenIdLogin('kakao','<?php echo $custom_app?>');"><img alt='Kakao' style="width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important" src="<?php echo plugins_url( 'includes/images/icons/kakao.png', __FILE__ )?>" class="<?php echo $selected_theme; ?> <?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  ></a>
-                                        <?php }
-                                        break;
-
-                                }
-                            }
-
-                            if($customTheme == 'custom'){
-                                switch ($select_apps) {
-                                    case 'facebook':
-                                        if ($selected_theme == 'longbutton') {
-                                            ?> <a rel='nofollow'
-                                                  <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('facebook','<?php echo $custom_app ?>');"
-                                                  style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight - 29 ?>px !important;padding-bottom:<?php echo $customHeight - 29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons - 5 ?>px !important;background:<?php echo "#" . $customBackground ?> !important;border-radius:<?php echo $customBoundary ?>px !important;"
-                                                  class="btn-mo btn btn-block btn-social btn-facebook  btn-custom-size login-button">
-                                                <i style="padding-top:<?php echo $customHeight - 35 ?>px !important"
-                                                   class="mofa"><svg xmlns="http://www.w3.org/2000/svg" style="padding-top:12%;border-right:none;margin-left: 2%;" ><path fill="#fff" d="M22.688 0H1.323C.589 0 0 .589 0 1.322v21.356C0 23.41.59 24 1.323 24h11.505v-9.289H9.693V11.09h3.124V8.422c0-3.1 1.89-4.789 4.658-4.789 1.322 0 2.467.1 2.8.145v3.244h-1.922c-1.5 0-1.801.711-1.801 1.767V11.1h3.59l-.466 3.622h-3.113V24h6.114c.734 0 1.323-.589 1.323-1.322V1.322A1.302 1.302 0 0 0 22.688 0z"/></svg></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); ?> Facebook</a>
-                                        <?php } else { ?>
-
-                                            <a class="<?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                                echo "dis";
-                                            } ?> login-button" rel='nofollow'
-                                               onClick="moOpenIdLogin('facebook','<?php echo $custom_app ?>');"
-                                               title="<?php echo $customTextofTitle ?> Facebook"><i
-                                                        style="margin-top:10px;!important;width:<?php echo $customSize ?>px !important;height:<?php echo $customSize ?>px !important;margin-left:<?php echo $spacebetweenicons - 4 ?>px !important;background:<?php echo "#" . $customBackground ?> !important;font-size:<?php echo $customSize - 16 ?>px !important;"
-                                                        class="mofa mofa-facebook custom-login-button <?php echo $selected_theme; ?>"></i></a>
-
-                                        <?php }
-                                        break;
-                                    case 'google':
-                                        if($selected_theme == 'longbutton'){
-                                            ?>
-                                            <a rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('google','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important; background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-customtheme btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-google"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Google</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  onClick="moOpenIdLogin('google','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Google"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"  class="mofa mofa-google custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                            <?php
-                                        }
-                                        break;
-                                    case 'vkontakte':
-                                        if($selected_theme == 'longbutton'){
-                                            ?>
-
-                                            <a  rel='nofollow'  <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('vkontakte','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important; background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-customtheme btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-vk"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Vkontakte</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' onClick="moOpenIdLogin('vkontakte','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Vkontakte"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"  class="mofa mofa-vk custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                            <?php
-                                        }
-                                        break;
-                                    case 'twitter':
-                                        if ($selected_theme == 'longbutton') {
-                                            ?>
-
-                                            <a rel='nofollow' <?php echo $gdpr_setting; ?>
-                                               onClick="moOpenIdLogin('twitter','<?php echo $custom_app ?>');"
-                                               style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight - 29 ?>px !important;padding-bottom:<?php echo $customHeight - 29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons - 5 ?>px !important; background:<?php echo "#" . $customBackground ?> !important;border-radius:<?php echo $customBoundary ?>px !important;"
-                                               class="btn btn-mo btn-block btn-social btn-customtheme btn-custom-size login-button">
-                                                <i style="padding-top:<?php echo $customHeight - 35 ?>px !important"
-                                                   class="mofa mofa-twitter"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); ?> Twitter</a>
-                                        <?php } else { ?>
-                                            <a class="<?php if (get_option('mo_openid_gdpr_consent_enable')) {
-                                                echo "dis";
-                                            } ?> login-button" rel='nofollow'
-                                               onClick="moOpenIdLogin('twitter','<?php echo $custom_app ?>');"
-                                               title="<?php echo $customTextofTitle ?> Twitter"><i
-                                                        style="margin-top:10px;width:<?php echo $customSize ?>px !important;height:<?php echo $customSize ?>px !important;margin-left:<?php echo $spacebetweenicons - 4 ?>px !important;background:<?php echo "#" . $customBackground ?> !important;font-size:<?php echo $customSize - 16 ?>px !important;"
-                                                        class="mofa mofa-twitter custom-login-button <?php echo $selected_theme; ?>"></i></a>
-                                            <?php
-                                        }
-                                        break;
-                                    case 'linkedin':
-                                        if($selected_theme == 'longbutton'){ ?>
-                                            <a rel='nofollow'  <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('linkedin','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn btn-mo btn-block btn-social btn-linkedin btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-linkedin"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> LinkedIn</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' onClick="moOpenIdLogin('linkedin','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> LinkedIn"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"  class="mofa mofa-linkedin custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'instagram':
-                                        if($selected_theme == 'longbutton'){	?>
-                                            <a  rel='nofollow' <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('instagram','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn btn-block btn-mo btn-social btn-instagram btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-instagram"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Instagram</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a  class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' onClick="moOpenIdLogin('instagram','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Instagram"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"   class="mofa mofa-instagram custom-login-button <?php echo $selected_theme; ?>"></i></a>
-                                        <?php }
-                                        break;
-                                    case 'amazon':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'  <?php echo $gdpr_setting; ?> onClick="moOpenIdLogin('amazon','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn btn-mo btn-block btn-social btn-linkedin btn-custom-size login-button" ><i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-amazon"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Amazon</a>
-                                        <?php }
-                                        else{ ?>
-
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow'  onClick="moOpenIdLogin('amazon','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Amazon"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"   class="mofa mofa-amazon custom-login-button <?php echo $selected_theme; ?>"></i></a>
-                                        <?php }
-                                        break;
-                                        case 'salesforce':
-                                            if($selected_theme == 'longbutton'){
-                                                ?> <a rel='nofollow'  <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('salesforce','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn btn-mo btn-block btn-social btn-linkedin btn-custom-size login-button" ><i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-cloud"></i> <?php
-                                                    echo get_option('mo_openid_login_button_customize_text'); 	?> Salesforce</a>
-                                            <?php }
-                                            else{ ?>
-
-
-                                                <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button" rel='nofollow' onClick="moOpenIdLogin('salesforce','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Salesforce"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px " class="mofa mofa-cloud custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                            <?php }
-                                    break;
-                                    case 'windowslive':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('windowslive','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn btn-mo btn-block btn-social btn-microsoft btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-windows"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Microsoft</a>
-                                        <?php }
-                                        else{ ?>
-
-
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('windowslive','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Microsoft"><i style="margin-top:10px;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;"   class=" mofa mofa-windows custom-login-button <?php echo $selected_theme; ?>"></i></a>
-                                        <?php }
-                                        break;
-                                    case 'yahoo':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('yaahoo','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-yahoo  btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-yahoo"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Yahoo</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('yaahoo','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Yahoo"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa mofa-yahoo custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'wordpress':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('wordpress','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-wordpress  btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-wordpress"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> WordPress</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('wordpress','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> WordPress"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa mofa-wordpress custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'disqus':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('disqus','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-disqus  btn-custom-size login-button" > <img  class="mofa"  style="padding-top:<?php echo $customHeight-35 ?>px !important; margin-top: 0" src="<?php echo plugins_url( 'includes/images/icons/disq.png', __FILE__ )?>"><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Disqus</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('disqus','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Disqus"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa custom-login-button <?php echo $selected_theme; ?>" ><img height="<?php echo $customSize-21 ?>px"  src="<?php echo plugins_url( 'includes/images/icons/disq.png', __FILE__ )?>"></i></a>
-                                        <?php }
-                                        break;
-                                    case 'pinterest':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('pinterest','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-pinterest  btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-pinterest"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Pinterest</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('pinterest','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Pinterest"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa mofa-pinterest custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'twitch':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('twitch','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-twitch  btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-twitch"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Twitch</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('twitch','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Twitch"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa mofa-twitch custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'vimeo':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('vimeo','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-vimeo  btn-custom-size login-button" > <i style="padding-top:<?php echo $customHeight-35 ?>px !important" class="mofa mofa-vimeo"></i><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Vimeo</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('vimeo','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Vimeo"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa mofa-vimeo custom-login-button <?php echo $selected_theme; ?>" ></i></a>
-                                        <?php }
-                                        break;
-                                    case 'kakao':
-                                        if($selected_theme == 'longbutton'){
-                                            ?> <a rel='nofollow'    <?php echo $gdpr_setting; ?>onClick="moOpenIdLogin('kakao','<?php echo $custom_app?>');" style="width:<?php echo $customWidth ?>px !important;padding-top:<?php echo $customHeight-29 ?>px !important;padding-bottom:<?php echo $customHeight-29 ?>px !important;margin-bottom:<?php echo $spacebetweenicons-5 ?>px !important;background:<?php echo "#".$customBackground?> !important;border-radius:<?php echo $customBoundary ?>px !important;" class="btn-mo btn btn-block btn-social btn-kakao  btn-custom-size login-button" > <img  class="mofa"  style="padding-top:<?php echo $customHeight-35 ?>px !important; margin-top: 0" src="<?php echo plugins_url( 'includes/images/icons/kaka.png', __FILE__ )?>"><?php
-                                                echo get_option('mo_openid_login_button_customize_text'); 	?> Kakao</a>
-                                        <?php }
-                                        else{ ?>
-                                            <a class="<?php if(get_option('mo_openid_gdpr_consent_enable')){echo "dis";} ?> login-button"  rel='nofollow' onClick="moOpenIdLogin('kakao','<?php echo $custom_app?>');" title="<?php echo $customTextofTitle ?> Kakao"><i style="margin-top:10px;!important;width:<?php echo $customSize?>px !important;height:<?php echo $customSize?>px !important;margin-left:<?php echo $spacebetweenicons-4?>px !important;background:<?php echo "#".$customBackground?> !important;font-size:<?php echo $customSize-16?>px !important;" class="mofa custom-login-button <?php echo $selected_theme; ?>" ><img height="<?php echo $customSize-21 ?>px"  src="<?php echo plugins_url( 'includes/images/icons/kaka.png', __FILE__ )?>"></i></a>
-                                        <?php }
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    ?>
-                    <br>
-                </div>
-                <?php
-            }
-            else {
-                ?>
-                <div>No apps configured. Please contact your administrator.</div>
-                <?php
-            }
-            if($appsConfigured && get_option('moopenid_logo_check') == 1){
-                $logo_html = $this->mo_openid_customize_logo();
-                echo $logo_html;
-            }
-            ?>
-            <br />
-            <?php
         }
         else {
             global $current_user;
@@ -541,7 +156,6 @@ class mo_openid_login_wid extends WP_Widget {
                     <li><?php echo $link_with_username;?> <a href="<?php echo wp_logout_url( site_url() ); ?>" title="<?php _e('Logout','flw');?>"><?php _e($customLogoutLink,'flw');?></a></li>
                 </div>
                 <?php
-
             }
             else {
                 ?>
@@ -639,139 +253,32 @@ class mo_openid_login_wid extends WP_Widget {
         if($mo_URL) {setcookie("mo_openid_signup_url",  $mo_URL, time() + (86400 * 30), "/");}
         else{setcookie("mo_openid_signup_url", $sign_up_url, time() + (86400 * 30), "/");}
         if( ! is_user_logged_in() ) {
-            if( $appsConfigured || $selected_apps!="") {
 
-                if($selected_apps!="")
-                    $apps=explode(',', $selected_apps);
-                else
-                    $apps=explode('#', $application_pos);
+            $values=array(
+                'appsConfigured' => $appsConfigured,
+                'selected_apps' => $selected_apps,
+                'application_pos' => $application_pos,
+                'customTextColor' => $customTextColor,
+                'customText' => $customText,
+                'consent_message' => $consent_message,
+                'selected_theme' => $selected_theme,
+                'view' => $view,
+                'gdpr_setting' => $gdpr_setting,
+                'spacebetweenicons' => $spacebetweenicons,
+                'customWidth' => $customWidth,
+                'customHeight' => $customHeight,
+                'customBoundary' => $customBoundary,
+                'buttonText' => $buttonText,
+                'dis' => $dis,
+                'customTextofTitle' => $customTextofTitle,
+                'customSize' => $customSize,
+                'html' => $html,
+                'customBackground' => $customBackground,
+                'customTheme' => $customTheme,
+                'appcnt' => $appcnt,
+            );
+            $html=$this->display_apps($values);
 
-                $this->mo_openid_load_login_script();
-                $html .= "<div class='mo-openid-app-icons'>
-					 <p style='color:#".$customTextColor."'> $customText</p>";
-
-                if(get_option('mo_openid_gdpr_consent_enable')){
-                    $html .= '<label class="mo-consent"><input type="checkbox" onchange="mo_openid_on_consent_change(this)" value="1" id="mo_openid_consent_checkbox">';
-                    $html .=  $consent_message.'</label>';
-                }
-                echo "<br>";
-                $count = -1;
-                if($selected_apps!=""){
-                    if(mo_openid_is_customer_registered())
-                    {
-                        foreach ($apps as $select_apps) {
-                            $app_dis = "";
-                            if ($selected_theme == 'longbutton') {
-                                if ($view == "horizontal" && isset($appcnt)) {
-                                    $count++;
-                                    if ($count == $appcnt) {
-                                        $html .= "<br/>";
-                                        $count = 0;
-                                    }
-                                }
-                            }
-                            $app_values= array(
-                                'gdpr_setting' => $gdpr_setting,
-                                'spacebetweenicons' => $spacebetweenicons,
-                                'customWidth' => $customWidth,
-                                'customHeight' => $customHeight,
-                                'customBoundary' => $customBoundary,
-                                'buttonText' => $buttonText,
-                                'dis' => $dis,
-                                'customTextofTitle' => $customTextofTitle,
-                                'customSize' => $customSize,
-                                'selected_theme' => $selected_theme,
-                                'html' => $html,
-                                'view' => $view,
-                                'customBackground' => $customBackground,
-                                'app_dis' => $app_dis,
-                                'customTheme' => $customTheme,
-                                'customer_register' => 'yes',
-                            );
-                            $html=$this->select_app($select_apps,$app_values);
-                        }
-                    }
-                    else{
-                        foreach ($apps as $select_apps) {
-                            $app_dis = "";
-                            if ($selected_theme == 'longbutton') {
-                                if ($view == "horizontal" && isset($appcnt)) {
-                                    $count++;
-                                    if ($count == $appcnt) {
-                                        $html .= "<br/>";
-                                        $count = 0;
-                                    }
-                                }
-                            }
-                            $app_values= array(
-                                'gdpr_setting' => $gdpr_setting,
-                                'spacebetweenicons' => $spacebetweenicons,
-                                'customWidth' => $customWidth,
-                                'customHeight' => $customHeight,
-                                'customBoundary' => $customBoundary,
-                                'buttonText' => $buttonText,
-                                'dis' => $dis,
-                                'customTextofTitle' => $customTextofTitle,
-                                'customSize' => $customSize,
-                                'selected_theme' => $selected_theme,
-                                'html' => $html,
-                                'view' => $view,
-                                'customBackground' => $customBackground,
-                                'app_dis' => $app_dis,
-                                'customTheme' => $customTheme,
-                                'customer_register' => 'no',
-                            );
-                            $html=$this->select_app($select_apps,$app_values);
-                        }
-                    }
-                }
-                else{
-                    foreach ($apps as $select_apps) {
-                        if (get_option('mo_openid_'.$select_apps.'_enable')) {
-                            $app_dis = "";
-                            if ($selected_theme == 'longbutton') {
-                                if ($view == "horizontal" && isset($appcnt)) {
-                                    $count++;
-                                    if ($count == $appcnt) {
-                                        $html .= "<br/>";
-                                        $count = 0;
-                                    }
-                                }
-                            }
-                            $app_values= array(
-                                'gdpr_setting' => $gdpr_setting,
-                                'spacebetweenicons' => $spacebetweenicons,
-                                'customWidth' => $customWidth,
-                                'customHeight' => $customHeight,
-                                'customBoundary' => $customBoundary,
-                                'buttonText' => $buttonText,
-                                'dis' => $dis,
-                                'customTextofTitle' => $customTextofTitle,
-                                'customSize' => $customSize,
-                                'selected_theme' => $selected_theme,
-                                'html' => $html,
-                                'view' => $view,
-                                'customBackground' => $customBackground,
-                                'app_dis' => $app_dis,
-                                'customTheme' => $customTheme,
-                                'customer_register' => 'yes',
-                            );
-                            $html=$this->select_app($select_apps,$app_values);
-                        }
-                    }
-                }
-                $html .= '</div> <br>';
-            }
-            else {
-                $html .= '<div>No apps configured. Please contact your administrator.</div>';
-            }
-            if( $appsConfigured && get_option('moopenid_logo_check') == 1 ){
-                $logo_html=$this->mo_openid_customize_logo();
-                $html .= $logo_html;
-            }
-            ?>
-            <br/>
-            <?php
         }else {
             global $current_user;
             $current_user = wp_get_current_user();
@@ -783,6 +290,160 @@ class mo_openid_login_wid extends WP_Widget {
             else {
                 $html .= '<div id="logged_in_user" class="mo_openid_login_wid">' . $customLogoutName . ' <a href=' . $logoutUrl .' title=" ' . $flw . '"> ' . $flw . '</a></div>';
             }
+        }
+        return $html;
+    }
+
+    public function display_apps($values){
+        $appsConfigured=$values['appsConfigured'];
+        $selected_apps=$values['selected_apps'];
+        $application_pos=$values['application_pos'];
+        $customTextColor=$values['customTextColor'];
+        $customText=$values['customText'];
+        $consent_message=$values['consent_message'];
+        $gdpr_setting=$values['gdpr_setting'];
+        $spacebetweenicons=$values['spacebetweenicons'];
+        $customWidth=$values['customWidth'];
+        $customHeight=$values['customHeight'];
+        $customBoundary=$values['customBoundary'];
+        $buttonText=$values['buttonText'];
+        $dis=$values['dis'];
+        $customTextofTitle=$values['customTextofTitle'];
+        $customSize=$values['customSize'];
+        $selected_theme=$values['selected_theme'];
+        $html=$values['html'];
+        $view=$values['view'];
+        $customBackground=$values['customBackground'];
+        $customTheme=$values['customTheme'];
+        $appcnt=isset($values['appcnt'])?$values['appcnt']:'';
+
+        if( $appsConfigured || $selected_apps!="") {
+
+            if($selected_apps!="")
+                $apps=explode(',', $selected_apps);
+            else
+                $apps=explode('#', $application_pos);
+
+            $this->mo_openid_load_login_script();
+            $html .= "<div class='mo-openid-app-icons'>
+					 <p style='color:#".$customTextColor."; width: fit-content;'> $customText</p>";
+            if(get_option('mo_openid_gdpr_consent_enable')){
+                $html .= '<label class="mo-consent" style="width: 100%"><input type="checkbox" onchange="mo_openid_on_consent_change(this)" value="1" id="mo_openid_consent_checkbox">';
+                $html .=  $consent_message.'</label>';
+            }
+            $count = -1;
+            if($selected_apps!=""){
+                if(mo_openid_is_customer_registered())
+                {
+                    foreach ($apps as $select_apps) {
+                        $app_dis = "";
+                        if ($selected_theme == 'longbutton') {
+                            if ($view == "horizontal" && isset($appcnt)) {
+                                $count++;
+                                if ("".$count == "".$appcnt) {
+                                    $html .= "<br/>";
+                                    $count = 0;
+                                }
+                            }
+                        }
+                        $app_values= array(
+                            'gdpr_setting' => $gdpr_setting,
+                            'spacebetweenicons' => $spacebetweenicons,
+                            'customWidth' => $customWidth,
+                            'customHeight' => $customHeight,
+                            'customBoundary' => $customBoundary,
+                            'buttonText' => $buttonText,
+                            'dis' => $dis,
+                            'customTextofTitle' => $customTextofTitle,
+                            'customSize' => $customSize,
+                            'selected_theme' => $selected_theme,
+                            'html' => $html,
+                            'view' => $view,
+                            'customBackground' => $customBackground,
+                            'app_dis' => $app_dis,
+                            'customTheme' => $customTheme,
+                            'customer_register' => 'yes',
+                        );
+                        $html=$this->select_app($select_apps,$app_values);
+                    }
+                }
+                else{
+                    foreach ($apps as $select_apps) {
+                        $app_dis = "";
+                        if ($selected_theme == 'longbutton') {
+                            if ($view == "horizontal" && isset($appcnt)) {
+                                $count++;
+                                if ($count == $appcnt) {
+                                    $html .= "<br/>";
+                                    $count = 0;
+                                }
+                            }
+                        }
+                        $app_values= array(
+                            'gdpr_setting' => $gdpr_setting,
+                            'spacebetweenicons' => $spacebetweenicons,
+                            'customWidth' => $customWidth,
+                            'customHeight' => $customHeight,
+                            'customBoundary' => $customBoundary,
+                            'buttonText' => $buttonText,
+                            'dis' => $dis,
+                            'customTextofTitle' => $customTextofTitle,
+                            'customSize' => $customSize,
+                            'selected_theme' => $selected_theme,
+                            'html' => $html,
+                            'view' => $view,
+                            'customBackground' => $customBackground,
+                            'app_dis' => $app_dis,
+                            'customTheme' => $customTheme,
+                            'customer_register' => 'no',
+                        );
+                        $html=$this->select_app($select_apps,$app_values);
+                    }
+                }
+            }
+            else{
+                foreach ($apps as $select_apps) {
+                    if (get_option('mo_openid_'.$select_apps.'_enable')) {
+                        $app_dis = "";
+                        if ($selected_theme == 'longbutton') {
+                            if ($view == "horizontal" && isset($appcnt)) {
+                                $count++;
+                                if ($count == $appcnt) {
+                                    $html .= "<br/>";
+                                    $count = 0;
+                                }
+                            }
+                        }
+                        $app_values= array(
+                            'gdpr_setting' => $gdpr_setting,
+                            'spacebetweenicons' => $spacebetweenicons,
+                            'customWidth' => $customWidth,
+                            'customHeight' => $customHeight,
+                            'customBoundary' => $customBoundary,
+                            'buttonText' => $buttonText,
+                            'dis' => $dis,
+                            'customTextofTitle' => $customTextofTitle,
+                            'customSize' => $customSize,
+                            'selected_theme' => $selected_theme,
+                            'html' => $html,
+                            'view' => $view,
+                            'customBackground' => $customBackground,
+                            'app_dis' => $app_dis,
+                            'customTheme' => $customTheme,
+                            'customer_register' => 'yes',
+                        );
+                        $html=$this->select_app($select_apps,$app_values);
+                    }
+                }
+            }
+            $html .= '</div> <br>';
+        }
+        else {
+            $html .= '<div>No apps configured. Please contact your administrator.</div>';
+        }
+        if( $appsConfigured && get_option('moopenid_logo_check') == 1 ){
+            $logo_html=$this->mo_openid_customize_logo();
+            $html .= $logo_html;
         }
         return $html;
     }
@@ -876,7 +537,6 @@ class mo_openid_login_wid extends WP_Widget {
         if($customer_register=='no' && $custom_app =='false')
             return 'disable';
     }
-
     //for shortcode
     public function add_apps($app_name,$theme,$gdpr_setting,$spacebetweenicons,$customWidth,$customHeight,$customBoundary,$buttonText,$dis,$customTextofTitle,$customSize,$selected_theme,$custom_app,$html,$view,$customBackground,$app_dis)
     {
@@ -1216,7 +876,6 @@ class mo_openid_login_wid extends WP_Widget {
 
     }
 
-
     private function mo_openid_load_login_script() {
         if(!get_option('mo_openid_gdpr_consent_enable')){?>
             <script>
@@ -1227,14 +886,11 @@ class mo_openid_login_wid extends WP_Widget {
         ?>
         <script type="text/javascript">
             function mo_openid_on_consent_change(checkbox){
-
                 if (! checkbox.checked) {
-
                     jQuery('#mo_openid_consent_checkbox').val(1);
                     jQuery(".btn-mo").attr("disabled", true);
                     jQuery(".login-button").addClass("dis");
                 } else {
-
                     jQuery('#mo_openid_consent_checkbox').val(0);
                     jQuery(".btn-mo").attr("disabled", false);
                     jQuery(".login-button").removeClass("dis");
@@ -1563,6 +1219,7 @@ function mo_openid_redirect_after_logout($logout_url)
 
 function mo_openid_login_validate(){
 
+
     $present_time_rateus_pop = date('Y-m-d');
     if(get_option('check_ten_rate_us') < 5 ){
         if(get_option('mo_openid_user_activation_date') < $present_time_rateus_pop){
@@ -1680,6 +1337,7 @@ function mo_openid_login_validate(){
                 'social_user_id' => $social_user_id,
             );
 
+            mo_openid_start_session_login($session_values);
             $user	= get_user_by('id', $user_id );
             update_custom_data($user_id);
             //registration hook
@@ -1775,6 +1433,7 @@ function mo_openid_login_validate(){
         if ( ! wp_verify_nonce( $nonce, 'mo-openid-account-linking-nonce' ) ) {
             wp_die('<strong>ERROR</strong>: Invalid Request.');
         } else {
+            mo_openid_start_session();
             //link account
             if (!isset($_POST['mo_openid_create_new_account'])) {
                 $nonce = wp_create_nonce('mo-openid-disable-social-login-nonce');
@@ -1964,16 +1623,20 @@ function encrypt_data($data, $key) {
 function mo_openid_update_role($user_id='', $user_url=''){
     // save the profile url in user meta // this was added to save facebook url in user meta as it is more than 100 chars
     update_user_meta($user_id, 'moopenid_user_profile_url',$user_url);
-    if(get_option('mo_openid_login_role_mapping') ){
-        $user = get_user_by('ID',$user_id);
-        $user->set_role( get_option('mo_openid_login_role_mapping') );
+    if(get_option('mo_openid_customised_field_enable') != 1 || get_option('mo_openid_update_role_addon') != 1) {
+        if (get_option('mo_openid_login_role_mapping')) {
+            $user = get_user_by('ID', $user_id);
+            $user->set_role(get_option('mo_openid_login_role_mapping'));
+        }
     }
 }
 
 
 
 function mo_openid_login_redirect($username = '', $user = NULL){
-   if(is_string($username) && $username && is_object($user) && !empty($user->ID) && ($user_id = $user->ID) ){
+    mo_openid_start_session();
+    if(is_string($username) && $username && is_object($user) && !empty($user->ID) && ($user_id = $user->ID) && isset($_SESSION['mo_login']) && $_SESSION['mo_login']){
+        $_SESSION['mo_login'] = false;
         wp_set_auth_cookie( $user_id, true );
         $redirect_url = mo_openid_get_redirect_url();
         wp_redirect($redirect_url);
@@ -1983,6 +1646,7 @@ function mo_openid_login_redirect($username = '', $user = NULL){
 
 function mo_openid_login_redirect_pop_up($username = '', $user = NULL){
 
+    mo_openid_start_session();
     if(is_string($username) && $username && is_object($user) && !empty($user->ID) && ($user_id = $user->ID) && isset($_SESSION['mo_login']) && $_SESSION['mo_login']){
         $_SESSION['mo_login'] = false;
         wp_set_auth_cookie( $user_id, true );
@@ -2004,6 +1668,8 @@ function mo_openid_login_redirect_pop_up($username = '', $user = NULL){
 }
 
 function mo_openid_update_user_meta($username, $user ){
+    mo_openid_start_session();
+
     if(isset($_SESSION['location_city'])? $_SESSION['location_city']: '') {
         update_user_meta($user->ID, 'location_city', $_SESSION['location_city']);
     }
@@ -2058,14 +1724,15 @@ function mo_openid_update_user_meta($username, $user ){
     update_user_meta( $user->ID, 'NA', isset($_SESSION['NA'])? $_SESSION['NA']:'' );
 }
 
-function mo_openid_link_account( $username, $user){
+function mo_openid_link_account( $username, $user ){
     if($user){
         $userid = $user->ID;
     }
-    $user_email = $_COOKIE["user_email"];
-    $social_app_identifier = $_COOKIE['social_id'];
-    $social_app_name = $_COOKIE['social_app_name'];
+    mo_openid_start_session();
 
+    $user_email =  isset($_SESSION['user_email']) ? sanitize_text_field($_SESSION['user_email']):'';
+    $social_app_identifier = isset($_SESSION['social_user_id']) ? sanitize_text_field($_SESSION['social_user_id']):'';
+    $social_app_name = isset($_SESSION['social_app_name']) ? sanitize_text_field($_SESSION['social_app_name']):'';
     if(empty($user_email)){
         $user_email=$user->user_email;
     }
@@ -2076,9 +1743,11 @@ function mo_openid_link_account( $username, $user){
     elseif(!isset($userid)){
         return;
     }
+
     global $wpdb;
     $db_prefix = $wpdb->prefix;
     $linked_email_id = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM ".$db_prefix."mo_openid_linked_user where linked_email = \"%s\" AND linked_social_app = \"%s\"",$user_email,$social_app_name));
+
     // if a user with given email and social app name doesn't already exist in the mo_openid_linked_user table
     if(!isset($linked_email_id)){
         mo_openid_insert_query($social_app_name,$user_email,$userid,$social_app_identifier);

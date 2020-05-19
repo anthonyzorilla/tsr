@@ -4,12 +4,12 @@
  * Plugin Name: Social Login, Social Sharing by miniOrange
  * Plugin URI: https://www.miniorange.com
  * Description: Allow your users to login, comment and share with Facebook, Google, Apple, Twitter, LinkedIn etc using customizable buttons.
- * Version: 7.3.2
+ * Version: 7.3.7
  * Author: miniOrange
  * License URI: http://miniorange.com/usecases/miniOrange_User_Agreement.pdf
  */
 
-define('MO_OPENID_SOCIAL_LOGIN_VERSION', '7.3.2');
+define('MO_OPENID_SOCIAL_LOGIN_VERSION', '7.3.7');
 define('plugin_url', plugin_dir_url(__FILE__) . "includes/images/icons/");
 define('MOSL_PLUGIN_DIR',str_replace('/','\\',plugin_dir_path(__FILE__)));
 require('miniorange_openid_sso_settings_page.php');
@@ -83,7 +83,7 @@ class miniorange_openid_sso_settings
         add_option('mo_openid_admin_api_key','BjIZyuSDTE90MVWp4pRLr3dzrFs8h74T');
         add_option('mo_openid_customer_token','6osoapPWEgGlBRgT');
         add_option('app_pos','facebook#google#vkontakte#twitter#instagram#linkedin#amazon#salesforce#windowslive#yahoo');
-        update_option('app_pos_premium','apple#wordpress#disqus#pinterest#spotify#reddit#tumblr#twitch#vimeo#kakao#discord#dribbble#flickr#line#meetup#stackexchange#livejournal#snapchat#foursquare#teamsnap#naver#odnoklassniki#wiebo#wechat#baidu#renren#qq');
+        update_option('app_pos_premium','apple#paypal#wordpress#disqus#pinterest#yandex#spotify#reddit#tumblr#twitch#vimeo#kakao#discord#dribbble#flickr#line#meetup#stackexchange#livejournal#snapchat#foursquare#teamsnap#naver#odnoklassniki#wiebo#wechat#baidu#renren#qq');
         add_option('mo_openid_default_login_enable',1);
         add_option( 'mo_openid_login_theme', 'longbutton' );
         add_option( 'mo_openid_register_email_message', 'Hello,<br><br>##User Name## has registered to your site  successfully.<br><br>Thanks,<br>miniOrange' );
@@ -115,7 +115,7 @@ class miniorange_openid_sso_settings
         add_option('moopenid_logo_check_account','1');
         add_option( 'mo_openid_email_enable', '1');
         add_option( 'mo_openid_tour_new','0');
-        add_option( 'mo_openid_deactivate_reason',0);
+        add_option( 'mo_openid_deactivate_reason_form',0);
 
         add_option('mo_openid_user_activation_date','0');
         //GDPR options
@@ -153,6 +153,7 @@ class miniorange_openid_sso_settings
         add_option( 'mo_openid_social_comment_default_label', 'Default Comments' );
         add_option( 'mo_openid_social_comment_fb_label', 'Facebook Comments' );
         add_option( 'mo_openid_social_comment_disqus_label', 'Disqus Comments' );
+        add_option( 'mo_disqus_shortname', '' );
         add_option( 'mo_openid_social_comment_heading_label', 'Leave a Reply' );
         add_option( 'mo_openid_login_theme', 'default' );
 
@@ -160,7 +161,7 @@ class miniorange_openid_sso_settings
             add_action('comment_form_must_log_in_after', array($this, 'mo_openid_add_social_login'));
             add_action('comment_form_top', array($this, 'mo_openid_add_social_login'));
         }
-        if(get_option('mo_openid_social_comment_fb') == 1 || get_option('mo_openid_social_comment_google') == 1 ){
+        if(get_option('mo_openid_social_comment_fb') == 1 || get_option('mo_openid_social_comment_disqus') == 1 ){
             add_action('comment_form_top', array( $this, 'mo_openid_add_comment'));
         }
 
@@ -666,11 +667,7 @@ Thank you.';
                             $message.='. '.sanitize_text_field($_POST['mo_openid_query_feedback']);
                         }
 
-                        if(get_option('mo_openid_admin_email'))
-                            $email=get_option('mo_openid_admin_email');
-                        else
-                            $email = get_option('admin_email');
-
+                        $email = sanitize_text_field($_POST['mo_feedback_email']);
                         //only reason
                         $phone='';
                         $contact_us = new CustomerOpenID();
@@ -696,11 +693,10 @@ Thank you.';
 
                                     update_option('mo_openid_message',"Your response is submitted successfully");
                                     mo_openid_show_success_message();
-                                    update_option('mo_openid_feedback_form',1);
                                 }
                             }
                         }
-                        update_option('mo_openid_feedback_form',1);
+                        update_option('mo_openid_deactivate_reason_form',1);
                         deactivate_plugins( '/miniorange-login-openid/miniorange_openid_sso_settings.php' );
                         update_option('mo_openid_message',"Plugin Deactivated Successfully");
                         mo_openid_show_success_message();
@@ -726,7 +722,9 @@ Thank you.';
                     wp_die('<strong>ERROR</strong>: Invalid Request.');
                 } else {
                     update_option('mo_openid_social_comment_fb', isset($_POST['mo_openid_social_comment_fb']) ? sanitize_text_field($_POST['mo_openid_social_comment_fb']) : 0);
+                    update_option('mo_openid_social_comment_disqus', isset($_POST['mo_openid_social_comment_disqus']) ? sanitize_text_field($_POST['mo_openid_social_comment_disqus']) : 0);
                     update_option('mo_openid_social_comment_default', isset($_POST['mo_openid_social_comment_default']) ? sanitize_text_field($_POST['mo_openid_social_comment_default']) : 0);
+                    update_option('mo_disqus_shortname', isset($_POST['mo_disqus_shortname']) ? sanitize_text_field($_POST['mo_disqus_shortname']) : "");
 	                update_option('mo_openid_message', 'Your settings are saved successfully.');
 	                mo_openid_show_success_message();
                 }
@@ -751,6 +749,7 @@ Thank you.';
                 } else {
                     update_option('mo_openid_social_comment_default_label',isset($_POST['mo_openid_social_comment_default_label'])? sanitize_text_field($_POST['mo_openid_social_comment_default_label']):0);
                     update_option('mo_openid_social_comment_fb_label', isset($_POST['mo_openid_social_comment_fb_label'])?sanitize_text_field($_POST['mo_openid_social_comment_fb_label']):0);
+                    update_option('mo_openid_social_comment_disqus_label', isset($_POST['mo_openid_social_comment_disqus_label'])?sanitize_text_field($_POST['mo_openid_social_comment_disqus_label']):0);
                     update_option('mo_openid_social_comment_heading_label',isset($_POST['mo_openid_social_comment_heading_label'])? sanitize_text_field($_POST['mo_openid_social_comment_heading_label']):0);
 	                update_option('mo_openid_message', 'Your settings are saved successfully.');
 	                mo_openid_show_success_message();
@@ -792,7 +791,7 @@ Thank you.';
 
 
     function mo_openid_feedback_request(){
-        if(get_option('mo_openid_deactivate_reason')=='0')
+        if(get_option('mo_openid_deactivate_reason_form')=='0')
             mo_openid_display_feedback_form();
     }
     function mo_openid_add_social_share_links($content) {

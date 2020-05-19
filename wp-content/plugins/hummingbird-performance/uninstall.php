@@ -72,7 +72,6 @@ if ( $settings['remove_settings'] ) {
 	}
 }
 
-
 if ( $settings['remove_data'] ) {
 	// Reports & data.
 	delete_site_option( 'wphb-caching-data' );

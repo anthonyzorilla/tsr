@@ -4,7 +4,7 @@
  * Fired during plugin deactivation
  *
  * @link       https://pagevisitcounter.com
- * @since      2.6.3
+ * @since      3.0.1
  *
  * @package    Advanced_Visit_Counter
  * @subpackage Advanced_Visit_Counter/includes
@@ -15,7 +15,7 @@
  *
  * This class defines all code necessary to run during the plugin's deactivation.
  *
- * @since      2.6.3
+ * @since      3.0.1
  * @package    Advanced_Visit_Counter
  * @subpackage Advanced_Visit_Counter/includes
  * @author     Ankit Panchal <ankitmaru@live.in>
@@ -27,7 +27,7 @@ class Advanced_Visit_Counter_Deactivator {
 	 *
 	 * Long Description.
 	 *
-	 * @since    2.6.3
+	 * @since    3.0.1
 	 */
 	public static function deactivate() {
 

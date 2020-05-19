@@ -11,6 +11,9 @@ $week_start = $this->main->get_first_day_of_week();
 
 // Get date suffix 
 $settings = $this->main->get_settings();
+$this->localtime = isset($this->skin_options['include_local_time']) ? $this->skin_options['include_local_time'] : false;
+$display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
+$reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
 
 // days and weeks vars
 $running_day = date('w', mktime(0, 0, 0, $month, 1, $year));
@@ -53,7 +56,7 @@ elseif($week_start == 5) // Friday
         for($list_day = 1; $list_day <= $days_in_month; $list_day++)
         {
             $time = strtotime($year.'-'.$month.'-'.$list_day);
-            $date_suffix = (isset($settings['date_suffix']) && $settings['date_suffix'] == '0') ? date_i18n('jS', $time) : date_i18n('j', $time);
+            $date_suffix = (isset($settings['date_suffix']) && $settings['date_suffix'] == '0') ? $this->main->date_i18n('jS', $time) : $this->main->date_i18n('j', $time);
 
             $today = date('Y-m-d', $time);
             $day_id = date('Ymd', $time);
@@ -65,7 +68,7 @@ elseif($week_start == 5) // Friday
                 echo '<dt class="mec-calendar-day'.$selected_day.' mec-has-event" data-mec-cell="'.$day_id.'" data-day="'.$list_day.'" data-month="'.date('Ym', $time).'"><a href="#" class="mec-has-event-a">'.$list_day.'</a>';
                 do_action('monthly_box_hook', $events[$today]);
                 echo '</dt>';
-                $events_str .= '<div class="mec-calendar-events-sec" data-mec-cell="'.$day_id.'" '.(trim($selected_day) != '' ? ' style="display: block;"' : '').'><h6 class="mec-table-side-title">'.sprintf(__('Events for %s', 'modern-events-calendar-lite'), date_i18n('F', $time)).'</h6><h3 class="mec-color mec-table-side-day"> '.$date_suffix .'</h3>';
+                $events_str .= '<div class="mec-calendar-events-sec" data-mec-cell="'.$day_id.'" '.(trim($selected_day) != '' ? ' style="display: block;"' : '').'><h6 class="mec-table-side-title">'.sprintf(__('Events for %s', 'modern-events-calendar-lite'), $this->main->date_i18n('F', $time)).'</h6><h3 class="mec-color mec-table-side-day"> '.$date_suffix .'</h3>';
 
                 foreach($events[$today] as $event)
                 {
@@ -77,75 +80,25 @@ elseif($week_start == 5) // Friday
                     $event_start_date = !empty($event->date['start']['date']) ? $event->date['start']['date'] : '';
 
                     $label_style = '';
-                    if ( !empty($event->data->labels) ):
-                    foreach( $event->data->labels as $label)
+                    if(!empty($event->data->labels))
                     {
-                        if(!isset($label['style']) or (isset($label['style']) and !trim($label['style']))) continue;
-                        if ( $label['style']  == 'mec-label-featured' )
+                        foreach($event->data->labels as $label)
                         {
-                            $label_style = esc_html__( 'Featured' , 'modern-events-calendar-lite' );
-                        } 
-                        elseif ( $label['style']  == 'mec-label-canceled' )
-                        {
-                            $label_style = esc_html__( 'Canceled' , 'modern-events-calendar-lite' );
+                            if(!isset($label['style']) or (isset($label['style']) and !trim($label['style']))) continue;
+                            if($label['style'] == 'mec-label-featured') $label_style = esc_html__('Featured' , 'modern-events-calendar-lite');
+                            elseif($label['style'] == 'mec-label-canceled') $label_style = esc_html__('Canceled' , 'modern-events-calendar-lite');
                         }
                     }
-                    endif;
-                    $speakers = '""';
-                    if ( !empty($event->data->speakers)) 
-                    {
-                        $speakers= [];
-                        foreach ($event->data->speakers as $key => $value) {
-                            $speakers[] = array(
-                                "@type" 	=> "Person",
-                                "name"		=> $value['name'],
-                                "image"		=> $value['thumbnail'],
-                                "sameAs"	=> $value['facebook'],
-                            );
-                        } 
-                        $speakers = json_encode($speakers);
-                    }
-                    $location_name = isset($location['name']) ? $location['name'] : '' ;
-                    $location_image = isset($location['thumbnail']) ? esc_url($location['thumbnail'] ) : '' ;
-                    $location_address = isset($location['address']) ? $location['address'] : '' ;
-                    $image = !empty($event->data->featured_image['full']) ? esc_html($event->data->featured_image['full']) : '' ;
-                    $price_schema = isset($event->data->meta['mec_cost']) ? $event->data->meta['mec_cost'] : '' ; 
-                    $currency_schema = isset($settings['currency']) ? $settings['currency'] : '' ;
-                    $schema_settings = isset( $settings['schema'] ) ? $settings['schema'] : '';
-                    if($schema_settings == '1' ):                    
-                    $events_str .= '
-                    <script type="application/ld+json">
-                    {
-                        "@context" 		: "http://schema.org",
-                        "@type" 		: "Event",
-                        "startDate" 	: "' . $startDate . '",
-                        "endDate" 		: "' . $endDate  . '",
-                        "location" 		:
-                        {
-                            "@type" 	: "Place",
-                            "name" 		: "' . $location_name . '",
-                            "image"		: "' . $location_image  . '",
-                            "address"	: "' .  $location_address . '"
-                        },
-                        "offers": {
-                            "url": "'. $event->data->permalink .'",
-                            "price": "' . $price_schema.'",
-                            "priceCurrency" : "' . $currency_schema .'"
-                        },
-                        "performer":  '. $speakers . ',
-                        "description" 	: "' . esc_html(preg_replace('/<p>\\s*?(<a .*?><img.*?><\\/a>|<img.*?>)?\\s*<\\/p>/s', '<div class="figure">$1</div>', preg_replace('/\s/u', ' ', $event->data->post->post_content))) . '",
-                        "image" 		: "'. $image . '",
-                        "name" 			: "' .esc_html($event->data->title) . '",
-                        "url"			: "'. $this->main->get_event_date_permalink($event->data->permalink, $event->date['start']['date']) . '"
-                    }
-                    </script>
-                    ';
-                    endif;
+
+                    // MEC Schema
+                    $events_str .= apply_filters('mec_schema_text', '', $event);
+
                     $events_str .= '<article data-style="'.$label_style.'" class="'.((isset($event->data->meta['event_past']) and trim($event->data->meta['event_past'])) ? 'mec-past-event ' : '').'ended-relative mec-event-article '.$this->get_event_classes($event).'">';
                     $events_str .= '<div class="mec-event-image">'.$event->data->thumbnails['thumbnail'].'</div>';
                     if(trim($start_time)) $events_str .= '<div class="mec-event-time mec-color"><i class="mec-sl-clock-o"></i> '.$start_time.(trim($end_time) ? ' - '.$end_time : '').'</div>';
                     $event_color =  isset($event->data->meta['mec_color']) ? '<span class="event-color" style="background: #'.$event->data->meta['mec_color'].'"></span>' : '';
-                    $events_str .= '<h4 class="mec-event-title"><a class="mec-color-hover" data-event-id="'.$event->data->ID.'" href="'.$this->main->get_event_date_permalink($event->data->permalink, $event->date['start']['date']).'">'.$event->data->title.'</a>'.$this->main->get_flags($event->data->ID, $event_start_date).$event_color.'</h4>';
+                    $events_str .= '<h4 class="mec-event-title"><a class="mec-color-hover" data-event-id="'.$event->data->ID.'" href="'.$this->main->get_event_date_permalink($event->data->permalink, $event->date['start']['date']).'">'.$event->data->title.'</a>'.$this->main->get_flags($event->data->ID, $event_start_date).$event_color.$this->main->get_normal_labels($event, $display_label).$this->main->display_cancellation_reason($event->data->ID, $reason_for_cancellation).'</h4>';
+                    if($this->localtime) $events_str .= $this->main->module('local-time.type3', array('event'=>$event));
 					$events_str .= '<div class="mec-event-detail">'.(isset($location['name']) ? $location['name'] : '').'</div>';
                     $events_str .= '</article>';
                 }
@@ -156,7 +109,7 @@ elseif($week_start == 5) // Friday
             {
                 echo '<dt class="mec-calendar-day'.$selected_day.'" data-mec-cell="'.$day_id.'" data-day="'.$list_day.'" data-month="'.date('Ym', $time).'">'.$list_day.'</dt>';
                 
-                $events_str .= '<div '.(trim($selected_day) != '' ? 'id="mec-active-current"' : '').' class="mec-calendar-events-sec" data-mec-cell="'.$day_id.'"><h6 class="mec-table-side-title">'.sprintf(__('Events for %s', 'modern-events-calendar-lite'), date_i18n('F', $time)).'</h6><h3 class="mec-color mec-table-side-day"> '.$date_suffix.'</h3>';
+                $events_str .= '<div '.(trim($selected_day) != '' ? 'id="mec-active-current"' : '').' class="mec-calendar-events-sec" data-mec-cell="'.$day_id.'"><h6 class="mec-table-side-title">'.sprintf(__('Events for %s', 'modern-events-calendar-lite'), $this->main->date_i18n('F', $time)).'</h6><h3 class="mec-color mec-table-side-day"> '.$date_suffix.'</h3>';
                 $events_str .= '<article class="mec-event-article">';
                 $events_str .= '<div class="mec-event-detail">'.__('No Events', 'modern-events-calendar-lite').'</div>';
                 $events_str .= '</article>';

@@ -139,7 +139,7 @@ function mo_openid_faq(){ ?>
                             <div  id="openid_question6_desc">
                                 1.<?php echo mo_sl('If you are making changes to a PHP file');?>.<br/><br/>
                                 <?php echo mo_sl('Go to the PHP file which invokes your page/post and insert the following html snippet. Also, increase the margin-left value as per your requirement. Save the file.');?> <br>
-                                <code>&ltdiv style="margin-left:100px;"&gt <br>&lt?php echo do_shortcode('[miniorange_social_login]')?&gt <br>
+                                <code>&ltdiv style="margin-left:100px;"&gt <br>&lt?php echo apply_shortcodes('[miniorange_social_login]')?&gt <br>
                                     &lt/div&gt </code><br/><br/>
                                 2.<?php echo mo_sl('If you are making changes to an HTML file.');?><br/><br/>
                                 <?php echo mo_sl('Go to the HTML file which invokes your page/post and insert the following html snippet. Also, increase the margin-left value as per your requirement. Save the file.');?> <br>

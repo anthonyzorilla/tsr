@@ -44,6 +44,17 @@ function select_comment_app(){
 
                 </td>
             </tr>
+             <tr>
+                <td>
+
+                    <label class="mo_openid_checkbox_container"> <b><?php echo mo_sl('Disqus Comments');?></b>
+                        <input type="checkbox" id="mo_openid_social_comment_disqus" name="mo_openid_social_comment_disqus" value="1" <?php checked( get_option('mo_openid_social_comment_disqus') == 1 );?> />
+                        <span class="mo_openid_checkbox_checkmark"></span>
+                    </label><input class="mo_openid_textfield_css" style="border: 1px solid ;border-color: #0867b2;width: 50%;margin: 1px" type="text" name="mo_disqus_shortname" placeholder="disqus-short-name" value="<?php echo esc_attr(get_option('mo_disqus_shortname')); ?>"/>
+
+
+                </td>
+            </tr>
         </table>
         <div><br/> <br/>
             <input type="submit" name="submit" value="<?php echo mo_sl('Save');?>" style="width:150px;text-shadow: none;background-color:#0867b2;color:white;box-shadow:none;"  class="button button-primary button-large" />

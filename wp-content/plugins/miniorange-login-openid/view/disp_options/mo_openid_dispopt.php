@@ -25,21 +25,27 @@ function mo_openid_disp_opt()
                 </label>
                 <label class="mo_openid_note_style" style="cursor: auto"><?php echo mo_sl("Don't find your login page in above options use");?> <code id='1'>[miniorange_social_login]</code><i style= "width: 11px;height: 9px;padding-left:2px;padding-top:3px" class="mofa mofa-fw mofa-lg mofa-copy mo_copy mo_copytooltip" onclick="copyToClipboard(this, '#1', '#shortcode_url_copy')"><span id="shortcode_url_copy" class="mo_copytooltiptext">Copy to Clipboard</span></i><?php echo mo_sl( 'to display social icons or');?> <a style="cursor: pointer" onclick="mo_openid_support_form('')"><?php echo mo_sl('Contact Us');?></a></label>
                 <br/><br/>
-                <b style="font-size: 17px;"><?php echo mo_sl('BuddyPress display options');?> <a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a></b><br><br>
+                <b style="font-size:17px;"><?php echo mo_sl("Ultimate Member display options");?> </b><a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a><br><br>
 
-                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Before BuddyPress Registration Form');?>
-                    <input type="checkbox"  /><br>
-                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                <label class="mo_openid_checkbox_container_disable">
+                    <input disabled type="checkbox" id="ultimate_before_login_form" /><?php echo mo_sl("Before Ultimate Member Login Form Fields");?>
+                    <span class="mo_openid_checkbox_checkmark"></span>
                 </label>
-
-                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Before BuddyPress Account Details');?>
-                    <input type="checkbox"  /><br>
-                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                <label class="mo_openid_checkbox_container_disable">
+                    <input disabled type="checkbox" id="ultimate_after_login_form" /><?php echo mo_sl("After Ultimate Member Login Form Fields");?>
+                    <span class="mo_openid_checkbox_checkmark"></span>
                 </label>
-
-                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('After BuddyPress Registration Form');?>
-                    <input type="checkbox"  /><br><br>
-                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                <label class="mo_openid_checkbox_container_disable">
+                    <input disabled type="checkbox" id="ultimate_center_form" /><?php echo mo_sl("After 'Register button' of Ultimate Member Form");?>
+                    <span class="mo_openid_checkbox_checkmark"></span>
+                </label>
+                <label class="mo_openid_checkbox_container_disable">
+                    <input disabled type="checkbox" id="ultimate_register_form_start" /><?php echo mo_sl("Before Ultimate Member Registration Form Fields");?>
+                    <span class="mo_openid_checkbox_checkmark"></span>
+                </label>
+                <label class="mo_openid_checkbox_container_disable">
+                    <input disabled type="checkbox" id="ultimate_register_form_end" /><?php echo mo_sl("After Ultimate Member Registration Form Fields");?>
+                    <span class="mo_openid_checkbox_checkmark"></span>
                 </label>
             </div>
             <div style="width:50%; background:white; float:right; border: 1px transparent;">
@@ -80,6 +86,23 @@ function mo_openid_disp_opt()
 
                 <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('After WooCommerce Checkout Form');?>
                     <input type="checkbox"  /><br>
+                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                </label>
+                <br/>
+                <b style="font-size: 17px;"><?php echo mo_sl('BuddyPress display options');?> <a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a></b><br><br>
+
+                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Before BuddyPress Registration Form');?>
+                    <input type="checkbox"  /><br>
+                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                </label>
+
+                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Before BuddyPress Account Details');?>
+                    <input type="checkbox"  /><br>
+                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                </label>
+
+                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('After BuddyPress Registration Form');?>
+                    <input type="checkbox"  /><br><br>
                     <span class="mo_openid_checkbox_checkmark_disable"></span>
                 </label>
             </div>

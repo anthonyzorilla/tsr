@@ -68,6 +68,12 @@ class MEC_skin_weekly_view extends MEC_skins
 
         // Image popup
         $this->image_popup = isset($this->skin_options['image_popup']) ? $this->skin_options['image_popup'] : '0';
+
+        // reason_for_cancellation
+        $this->reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
+
+        // display_label
+        $this->display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
         
         // From Widget
         $this->widget = (isset($this->atts['widget']) and trim($this->atts['widget'])) ? true : false;
@@ -136,6 +142,8 @@ class MEC_skin_weekly_view extends MEC_skins
         foreach($this->weeks as $week_number=>$week) foreach($week as $day) $this->week_of_days[$day] = $week_number;
 
         $this->maximum_dates = isset($this->atts['maximum_dates']) ? $this->atts['maximum_dates'] : 1;
+
+        do_action('mec-weekly-initialize-end', $this);
     }
     
     /**
@@ -189,6 +197,7 @@ class MEC_skin_weekly_view extends MEC_skins
 
             // Extending the end date
             $this->end_date = $date;
+
             // The Query
             $query = new WP_Query($this->args);
             if(is_array($IDs) and count($IDs) and $query->have_posts())
@@ -199,7 +208,6 @@ class MEC_skin_weekly_view extends MEC_skins
                     $query->the_post();
 
                     if(!isset($events[$date])) $events[$date] = array();
-                    
 
                     $rendered = $this->render->data(get_the_ID());
 
@@ -222,7 +230,7 @@ class MEC_skin_weekly_view extends MEC_skins
                         'end'=>array('date'=>$this->main->get_end_date($date, $rendered))
                     );
                     $data->dates = $dates;
-                    $events[$date][] = $data;
+                    $events[$date][] = $this->render->after_render($data);
                 }
             }
             else

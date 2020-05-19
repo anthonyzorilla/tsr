@@ -45,6 +45,39 @@ function mo_openid_registration()
                         <?php checked( get_option('moopenid_social_login_avatar') == 1 );?> /><b style="font-size: 15px;"></b><span class="mo_openid_checkbox_checkmark"></span>
                 </label>
             </div>
+
+
+            <br/><hr>
+            <h3><?php echo mo_sl('Send user activation link over email');?><a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a></h3>
+            <div>
+                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Send user activation link over email - on User Registration');?>
+                    <input type="checkbox"  /><br>
+                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                </label>
+                <?php
+                $editor_height = array("editor_height"=>100);
+                $content = 'Please click on link to activate your account  ##link##';
+                $editor_id = 'mo_openid_registration_email_content';
+                wp_editor( $content, $editor_id,$editor_height);
+                ?>
+
+            </div>
+
+
+            <br/><hr>
+            <h3><?php echo mo_sl('Enable Registration For Pages');?><a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a></h3>
+            <div>
+                <label class="mo_openid_checkbox_container_disable"><?php echo mo_sl('Enable registration for specific pages');?>
+                    <input type="checkbox"  /><br>
+                    <span class="mo_openid_checkbox_checkmark_disable"></span>
+                    <br/>
+                    <label style="cursor: auto"><?php echo mo_sl('Enter Page URLs to Enable Registration:');?></label>
+                    <textarea rows="4" cols="50" class="mo_openid_textfield_css" style="border: 1px solid ;border-color: #0867b2;width: 100%" disabled placeholder="Please enter URLs seperated by semicolon(;)"/></textarea>
+                        <br/><label style="cursor: auto"><?php echo mo_sl('Enter Page URL to Redeirect if user is not allowed to register:');?></label>
+                        <textarea rows="4" cols="50" class="mo_openid_textfield_css" disabled style="border: 1px solid ;border-color: #0867b2;width: 100%"/></textarea>
+                </label>
+
+            </div>
             <br/><b><input type="submit" name="submit" value="<?php echo mo_sl('Save');?>" style="width:150px;text-shadow: none;background-color:#0867b2;color:white;box-shadow:none;"  class="button button-primary button-large" /></b>
         </div>
     </form>

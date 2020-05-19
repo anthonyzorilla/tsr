@@ -377,7 +377,7 @@ function mo_openid_show_apps()
                                     '</div>'+
                                 '</div>'+
                                 '<div id="mo_openid_cust_app_instructions" style="width: 59%; background-color: #d2d4e542; float: right; display: block; height: auto; overflow-y: auto">'+
-                                    '<div><center><h3 id="custom_app_instructions"></h3></center></div>'+
+                                    '<div><center><h3 id="custom_app_instructions"></h3><h4 id="mo_ssl_notice" style="color:red;margin-top: 0px;margin-bottom: 0px;"></h4></center></div>'+
                                     '<ol id="custom_app_inst_steps"></ol><div style="padding: 0px 10px 10px 10px;" id="custom_app_perma_inst"><strong style=\'color: red;font-weight: bold\'><br>You have selected plain permalink and <label id="mo_perma_error_app_name" style="display:contents"></label> does not support it.</strong><br><br> Please change the permalink to continue further.Follow the steps given below:<br>1. Go to settings from the left panel and select the permalinks option.<br>2. Plain permalink is selected ,so please select any other permalink and click on save button.<br> <strong class=\'mo_openid_note_style\' style=\'color: red;font-weight: bold\'> When you will change the permalink ,then you have to re-configure the already set up custom apps because that will change the redirect URL.</strong></div>'+
                                 '</div>'+
                                 '<div id="mo_openid_register_new_user" style="width: 59%; background-color: #d2d4e542; float: right; display: none; height: auto; overflow-y: auto">'+
@@ -540,7 +540,7 @@ function mo_openid_show_apps()
                 document.getElementById('mo_openid_ajax_wait_img').style.display = 'none';
                 document.getElementById('mo_openid_ajax_wait_fade').style.display = 'none';
             }
-            
+
             //register_old_user
             jQuery('#mo_register_old_user').click(function () {
                 jQuery('#mo_msg_box').hide();
@@ -830,10 +830,15 @@ function mo_openid_show_apps()
             jQuery('#mo_openid_cust_app_instructions').show();
             jQuery('#mo_openid_register_new_user').hide();
             jQuery('#mo_openid_register_old_user').hide();
-            if(application_name == 'facebook')
-             jQuery ( "#mo_set_pre_config_app").hide();
-            else
-                jQuery ( "#mo_set_pre_config_app").show();
+            if(application_name == 'facebook') {
+                jQuery("#mo_set_pre_config_app").hide();
+                jQuery("#mo_ssl_notice").text("SSL certificate is required for "+application_name.charAt(0).toUpperCase()+application_name.substr(1)+" custom app");
+                jQuery("#mo_ssl_notice").show();
+            }
+            else {
+                jQuery("#mo_set_pre_config_app").show();
+                jQuery("#mo_ssl_notice").hide();
+            }
             if(application_name == 'salesforce'){
                 document.getElementById('mo_openid_ajax_wait_img').style.display = 'none';
                 document.getElementById('mo_openid_ajax_wait_fade').style.display = 'none';

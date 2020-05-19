@@ -68,6 +68,12 @@ class MEC_skin_daily_view extends MEC_skins
 
         // Image popup
         $this->image_popup = isset($this->skin_options['image_popup']) ? $this->skin_options['image_popup'] : '0';
+
+        // reason_for_cancellation
+        $this->reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
+
+        // display_label
+        $this->display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
         
         // From Widget
         $this->widget = (isset($this->atts['widget']) and trim($this->atts['widget'])) ? true : false;
@@ -129,6 +135,8 @@ class MEC_skin_daily_view extends MEC_skins
         
         // We will extend the end date in the loop
         $this->end_date = $this->start_date;
+
+        do_action('mec-daily-initialize-end', $this);
     }
     
     /**
@@ -207,7 +215,7 @@ class MEC_skin_daily_view extends MEC_skins
                         'end'=>array('date'=>$this->main->get_end_date($date, $rendered))
                     );
 
-                    $events[$date][] = $data;
+                    $events[$date][] = $this->render->after_render($data);
                 }
             }
             else
@@ -268,7 +276,7 @@ class MEC_skin_daily_view extends MEC_skins
         foreach($this->events as $date=>$events)
         {
             $time = strtotime($date);
-            $labels .= '<div class="mec-daily-view-day '.(count($events) ? 'mec-has-event' : '').'" id="mec_daily_view_day'.$this->id.'_'.date('Ymd', $time).'" data-events-count="'.count($events).'" data-month-id="'.date('Ym', $time).'" data-day-id="'.date('Ymd', $time).'" data-day-weekday="'.date_i18n('l', $time).'" data-day-monthday="'.date('j', $time).'">'.date_i18n('j', $time).'</div>';
+            $labels .= '<div class="mec-daily-view-day '.(count($events) ? 'mec-has-event' : '').'" id="mec_daily_view_day'.$this->id.'_'.date('Ymd', $time).'" data-events-count="'.count($events).'" data-month-id="'.date('Ym', $time).'" data-day-id="'.date('Ymd', $time).'" data-day-weekday="'.$this->main->date_i18n('l', $time).'" data-day-monthday="'.date('j', $time).'">'.$this->main->date_i18n('j', $time).'</div>';
         }
         
         return $labels.'</div>';

@@ -1,3 +1,6 @@
+// Set datepicker default value.
+var datepicker_format = 'yy-mm-dd';
+
 jQuery(document).ready(function($)
 {
     // Image picker on terms menu
@@ -156,12 +159,26 @@ jQuery(document).ready(function($)
         $('#mec_fes_organizer_remove_image_button').addClass('mec-util-hidden');
     });
     
+    if ( typeof mec_admin_localize !== 'undefined' ) {
+        var date_splite = mec_admin_localize.datepicker_format.split( '&' );
+        
+        if ( date_splite[0] !== undefined && date_splite.length == 2 ) {
+            datepicker_format = date_splite[0];
+        }
+    } else if ( typeof mecdata !== 'undefined' ) {
+        var date_splite = mecdata.datepicker_format.split( '&' );
+        
+        if ( date_splite[0] !== undefined && date_splite.length == 2 ) {
+            datepicker_format = date_splite[0];
+        }
+    }
+
     if ($.fn.datepicker) {
         $('#mec_start_date').datepicker(
         {
             changeYear: true,
             changeMonth: true,
-            dateFormat: 'yy-mm-dd',
+            dateFormat: datepicker_format,
             gotoCurrent: true,
             yearRange: 'c-3:c+5',
         });
@@ -170,7 +187,7 @@ jQuery(document).ready(function($)
         {
             changeYear: true,
             changeMonth: true,
-            dateFormat: 'yy-mm-dd',
+            dateFormat: datepicker_format,
             gotoCurrent: true,
             yearRange: 'c-3:c+5',
         });
@@ -179,11 +196,20 @@ jQuery(document).ready(function($)
         {
             changeYear: true,
             changeMonth: true,
-            dateFormat: 'yy-mm-dd',
+            dateFormat: datepicker_format,
             gotoCurrent: true,
             yearRange: 'c-3:c+5',
         });
         
+        $('.mec_date_picker_dynamic_format').datepicker(
+        {
+            changeYear: true,
+            changeMonth: true,
+            dateFormat: datepicker_format,
+            gotoCurrent: true,
+            yearRange: 'c-3:c+5',
+        });
+
         $('.mec_date_picker').datepicker(
         {
             changeYear: true,
@@ -239,14 +265,34 @@ jQuery(document).ready(function($)
         var end = $('#mec_exceptions_in_days_end_date').val();
         if(end === '') return false;
 
-        var value = start + ':' + end;
-        var label = start + ' - ' + end;
+        var start_hour = $('#mec_exceptions_in_days_start_hour').val();
+        if(start_hour.length === 1) start_hour = '0'+start_hour;
+
+        var start_minutes = $('#mec_exceptions_in_days_start_minutes').val();
+        if(start_minutes.length === 1) start_minutes = '0'+start_minutes;
+
+        var start_ampm = $('#mec_exceptions_in_days_start_ampm').val();
+        if(typeof start_ampm === 'undefined') start_ampm = '';
+
+        var end_hour = $('#mec_exceptions_in_days_end_hour').val();
+        if(end_hour.length === 1) end_hour = '0'+end_hour;
+
+        var end_minutes = $('#mec_exceptions_in_days_end_minutes').val();
+        if(end_minutes.length === 1) end_minutes = '0'+end_minutes;
+
+        var end_ampm = $('#mec_exceptions_in_days_end_ampm').val();
+        if(typeof end_ampm === 'undefined') end_ampm = '';
+
+        var value = start + ':' + end + ':' + start_hour + '-' + start_minutes + '-' + start_ampm + ':' + end_hour + '-' + end_minutes + '-' + end_ampm;
+        var label = start + ' ' + start_hour + ':' + start_minutes + ' ' + start_ampm + ' - ' + end + ' ' + end_hour + ':' + end_minutes + ' ' + end_ampm;
+
+        var $key = $('#mec_new_in_days_key');
         
-        var key = $('#mec_new_in_days_key').val();
+        var key = $key.val();
         var html = $('#mec_new_in_days_raw').html().replace(/:i:/g, key).replace(/:val:/g, value).replace(/:label:/g, label);
         
         $('#mec_in_days').append(html);
-        $('#mec_new_in_days_key').val(parseInt(key)+1);
+        $key.val(parseInt(key)+1);
     });
     
     $('#mec_add_not_in_days').on('click', function()
@@ -532,7 +578,7 @@ function mec_handle_add_price_date_button(e)
     {
         changeYear: true,
         changeMonth: true,
-        dateFormat: 'yy-mm-dd',
+        dateFormat: datepicker_format,
         gotoCurrent: true,
         yearRange: 'c-3:c+5',
     });

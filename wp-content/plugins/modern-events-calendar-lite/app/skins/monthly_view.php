@@ -75,6 +75,12 @@ class MEC_skin_monthly_view extends MEC_skins
         // SED Method
         $this->sed_method = isset($this->skin_options['sed_method']) ? $this->skin_options['sed_method'] : '0';
 
+        // reason_for_cancellation
+        $this->reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
+
+        // display_label
+        $this->display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
+
         // Image popup
         $this->image_popup = isset($this->skin_options['image_popup']) ? $this->skin_options['image_popup'] : '0';
         
@@ -164,6 +170,13 @@ class MEC_skin_monthly_view extends MEC_skins
         $events = array();
         foreach($dates as $date=>$IDs)
         {
+            // No Event
+            if(!is_array($IDs) or (is_array($IDs) and !count($IDs)))
+            {
+                $events[$date] = array();
+                continue;
+            }
+
             // Include Available Events
             $this->args['post__in'] = $IDs;
 
@@ -190,7 +203,7 @@ class MEC_skin_monthly_view extends MEC_skins
                         'end'=>array('date'=>$this->main->get_end_date($date, $rendered))
                     );
 
-                    $events[$date][] = $data;
+                    $events[$date][] = $this->render->after_render($data);
                 }
             }
 

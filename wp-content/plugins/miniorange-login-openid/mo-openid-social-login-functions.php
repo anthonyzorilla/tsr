@@ -3,13 +3,13 @@ require 'social_apps/mo_openid_configured_apps_funct.php';
 
 function mo_openid_start_session() {
     if( !session_id() ) {
-      //  session_start();
+        session_start();
     }
 }
 
 function mo_openid_end_session() {
-    //session_start();
-   // session_unset(); //unsets all session variables
+    session_start();
+    session_unset(); //unsets all session variables
 }
 
 function mo_openid_initialize_social_login(){
@@ -57,13 +57,13 @@ function mo_openid_process_custom_app_callback()
     }
     $code = $profile_url = $client_id = $current_url = $client_secret = $access_token_uri = $postData = $oauth_token = $user_url = $user_name = $email = '';
     $oauth_access_token = $redirect_url = $option = $oauth_token_secret = $screen_name = $profile_json_output = $oauth_verifier = $twitter_oauth_token = $access_token_json_output = [];
+    mo_openid_start_session();
     if (strpos($_SERVER['REQUEST_URI'], "oauth_verifier") !== false) {
-        $appname = "twitter";
+        $_SESSION['appname'] = "twitter";
     }
 
-
-    if ($appname == "twitter") {
-        $appname = "twitter";
+    if (isset($_SESSION['appname'])) {
+        $appname = $_SESSION['appname'];
     } else if (strpos($_SERVER['REQUEST_URI'], "openidcallback") !== false) {
         if ((strpos($_SERVER['REQUEST_URI'], "openidcallback/google") !== false) || (strpos($_SERVER['REQUEST_URI'], "openidcallback=google") !== false)) {
             $appname = "google";
@@ -241,15 +241,8 @@ function mo_openid_process_user_details($appuserdetails,$appname)
         'social_app_name' => $appname,
         'social_user_id' => $social_user_id,
     );
+    mo_openid_start_session_login($session_values);
     // user is a member
-   setcookie('social_id', $session_values['social_user_id'], 0  ,"/");
-    $_COOKIE['social_id']=$session_values['social_user_id'];
-    setcookie('user_email', $session_values['user_email'],0,"/" );
-    $_COOKIE['user_email']=$session_values['user_email'];
-    setcookie('social_app_name', $session_values['social_app_name'],0,"/");
-    $_COOKIE['social_app_name']=$session_values['social_app_name'];
-
-
     if ((isset($linked_email_id)) || (isset($email_user_id)) || (isset($existing_email_user_id))) {
         if ((!isset($linked_email_id)) && (isset($email_user_id))) {
             $linked_email_id = $email_user_id;
@@ -383,21 +376,12 @@ function mo_create_new_user($user_val){
         'social_app_name' => $appname,
         'social_user_id' => $social_user_id,
     );
-    if(isset($session_values['social_user_id'])? $session_values['social_user_id']: '') {
-        update_user_meta($user_id, 'social_user_id', $session_values['social_user_id']);
-    }
-    if(isset($session_values['social_app_name'])? $session_values['social_app_name']: '') {
-        update_user_meta($user_id, 'social_app_name', $session_values['social_app_name']);
-    }
-    if(isset($session_values['user_email'])? $session_values['user_email']: '') {
-        update_user_meta($user_id, 'user_email', $session_values['user_email']);
-    }
 
+    mo_openid_start_session_login($session_values);
     $user	= get_user_by('id', $user_id );
-
     //registration hook
     do_action( 'mo_user_register', $user_id,$user_profile_url);
-    mo_openid_link_account($user->user_login, $user,$session_values);
+    mo_openid_link_account($user->user_login, $user);
     $linked_email_id = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM " . $db_prefix . "mo_openid_linked_user where linked_social_app = \"%s\" AND identifier = %s", $appname, $social_user_id));
     mo_openid_login_user($linked_email_id,$user_id,$user,$user_picture,0);
 }
@@ -413,6 +397,7 @@ function mo_openid_customize_logo(){
 }
 
 function mo_openid_save_extended_attributes_in_session($extended_attr){
+    mo_openid_start_session();
     $_SESSION['location_city'] = isset($extended_attr['location_city'])?$extended_attr['location_city']:'';
     $_SESSION['location_country'] = isset($extended_attr['$location_country'])?$extended_attr['location_country']:'';
     $_SESSION['about_me'] = isset($extended_attr['about_me'])?$extended_attr['about_me']:'';
@@ -1325,8 +1310,15 @@ function update_custom_data($user_id)
             }
         }
         if ($type != "checkbox") {
-            if(get_option('mo_customer_validation_mo_social_login_enable')=="1" && get_option('mo_openid_customised_field_enable') == "1" )
-                array_push($cust_reg_val,[$field_update=>$_POST[$field]]);
+//            if(get_option('mo_customer_validation_mo_social_login_enable')=="1" && get_option('mo_openid_customised_field_enable') == "1" )
+//                array_push($cust_reg_val,[$field_update=>$_POST[$field]]);
+//            else
+            if($type == "dropdown" && $_POST['user_role'])
+            {
+                $user = get_user_by('ID',$user_id);
+                $user->set_role( strtolower($_POST['user_role']) );
+                update_user_meta($user_id, $field_update, $_POST['user_role']);
+            }
             else
                 update_user_meta($user_id, $field_update, $_POST[$field]);
         } else {
@@ -1341,9 +1333,9 @@ function update_custom_data($user_id)
                 }
                 $a++;
             }
-            if(get_option('mo_customer_validation_mo_social_login_enable')=="1" && get_option('mo_openid_customised_field_enable') == "1" )
-                array_push($cust_reg_val,[$field_update=>$res]);
-            else
+//            if(get_option('mo_customer_validation_mo_social_login_enable')=="1" && get_option('mo_openid_customised_field_enable') == "1" )
+//                array_push($cust_reg_val,[$field_update=>$res]);
+//            else
                 update_user_meta($user_id, $field_update, $res);
         }
     }

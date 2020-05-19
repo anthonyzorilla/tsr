@@ -94,6 +94,9 @@ class MEC_notifications extends MEC_base
         $event_id = get_post_meta($book_id, 'mec_event_id', true);
         $link = trim(get_permalink($event_id), '/').'/verify/'.$key.'/';
 
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
+
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
 
@@ -188,6 +191,9 @@ class MEC_notifications extends MEC_base
 
         // Do not send email twice!
         $done_emails = array();
+
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
 
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
@@ -300,6 +306,9 @@ class MEC_notifications extends MEC_base
 
         // Do not send email twice!
         $done_emails = array();
+
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
 
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
@@ -438,6 +447,9 @@ class MEC_notifications extends MEC_base
 
         $subject = isset($this->notif_settings['cancellation_notification']['subject']) ? $this->content(__($this->notif_settings['cancellation_notification']['subject'], 'modern-events-calendar-lite'), $book_id) : __('booking canceled.', 'modern-events-calendar-lite');
 
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
+
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
 
@@ -557,6 +569,9 @@ class MEC_notifications extends MEC_base
             $message = str_replace('%%attendees_full_info%%', $attendees_full_info, $message);
         }
 
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
+
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
         $message = '
@@ -632,6 +647,9 @@ class MEC_notifications extends MEC_base
         // Attendees
         $attendees = get_post_meta($book_id, 'mec_attendees', true);
         if(!is_array($attendees) or (is_array($attendees) and !count($attendees))) $attendees = array(get_post_meta($book_id, 'mec_attendee', true));
+
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
 
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
@@ -765,6 +783,9 @@ class MEC_notifications extends MEC_base
         // Notification Subject
         $subject = str_replace('%%event_title%%', get_the_title($event_id), $subject);
 
+        // Changing some sender email info.
+        $this->mec_sender_email_notification_filter();
+
         // Set Email Type to HTML
         add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
 
@@ -851,6 +872,9 @@ class MEC_notifications extends MEC_base
             // Notification Subject
             $subject = str_replace('%%event_title%%', get_the_title($post->ID), $subject);
 
+            // Changing some sender email info.
+            $this->mec_sender_email_notification_filter();
+
             // Set Email Type to HTML
             add_filter('wp_mail_content_type', array($this->main, 'html_email_type'));
 
@@ -934,7 +958,7 @@ class MEC_notifications extends MEC_base
             $ex = explode(':', $book_date);
             if(isset($ex[0]) and isset($ex[1]) and trim($ex[0]) != trim($ex[1]))
             {
-                $book_date = sprintf(__('%s to %s', 'modern-events-calendar-lite'), date_i18n($date_format, strtotime($ex[0])), date_i18n($date_format, strtotime($ex[1])));
+                $book_date = sprintf(__('%s to %s', 'modern-events-calendar-lite'), $this->main->date_i18n($date_format, strtotime($ex[0])), $this->main->date_i18n($date_format, strtotime($ex[1])));
             }
             else $book_date = get_the_date('', $book_id);
         }
@@ -944,7 +968,7 @@ class MEC_notifications extends MEC_base
 
         // Order Time
         $order_time = get_post_meta($book_id, 'mec_booking_time', true);
-        $message = str_replace('%%book_order_time%%', date_i18n($date_format.' '.$time_format, strtotime($order_time)), $message);
+        $message = str_replace('%%book_order_time%%', $this->main->date_i18n($date_format.' '.$time_format, strtotime($order_time)), $message);
 
         // Book Time
         $start_seconds = get_post_meta($event_id, 'mec_start_day_seconds', true);
@@ -1001,6 +1025,25 @@ class MEC_notifications extends MEC_base
         $message = str_replace('%%event_speaker_name%%', (isset($speaker_name) ? implode(', ', $speaker_name): ''), $message);
         $message = str_replace('%%event_location_name%%', (isset($location->name) ? $location->name : ''), $message);
         $message = str_replace('%%event_location_address%%', get_term_meta($location_id, 'address', true), $message);
+
+        $additional_locations_name = '';
+        $additional_locations_address = '';
+
+        $additional_locations_ids = get_post_meta($event_id, 'mec_additional_location_ids', true);
+        if(!is_array($additional_locations_ids)) $additional_locations_ids = array();
+
+        foreach($additional_locations_ids as $additional_locations_id)
+        {
+            $additional_location = get_term($additional_locations_id, 'mec_location');
+            if(isset($additional_location->name))
+            {
+                $additional_locations_name .= $additional_location->name.', ';
+                $additional_locations_address .= get_term_meta($additional_locations_id, 'address', true).'<br>';
+            }
+        }
+
+        $message = str_replace('%%event_other_locations_name%%', trim($additional_locations_name, ', '), $message);
+        $message = str_replace('%%event_other_locations_address%%', trim($additional_locations_address, ', '), $message);
 
         $ticket_name = $ticket_start_hour = $ticket_start_minute = $ticket_end_hour = $ticket_end_minute = $ticket_start_ampm = $ticket_end_ampm = '';
 
@@ -1147,6 +1190,13 @@ class MEC_notifications extends MEC_base
         return $attendees_full_info;
     }
 
+    public function mec_sender_email_notification_filter()
+    {
+        // MEC Notification Sender Email
+        add_filter('wp_mail_from_name', array($this, 'notification_sender_name'));
+        add_filter('wp_mail_from', array($this, 'notification_sender_email'));
+    }
+    
      /**
      * Change Notification Sender Name
      * @return string

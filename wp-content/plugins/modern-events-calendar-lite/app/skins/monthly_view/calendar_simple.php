@@ -6,12 +6,14 @@ defined('MECEXEC') or die();
 $headings = $this->main->get_weekday_abbr_labels();
 echo '<dl class="mec-calendar-table-head"><dt class="mec-calendar-day-head">'.implode('</dt><dt class="mec-calendar-day-head">', $headings).'</dt></dl>';
 
-
 // Start day of week
 $week_start = $this->main->get_first_day_of_week();
 
 // Get date suffix 
 $settings = $this->main->get_settings();
+$this->localtime = isset($this->skin_options['include_local_time']) ? $this->skin_options['include_local_time'] : false;
+$display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
+$reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
 
 // days and weeks vars
 $running_day = date('w', mktime(0, 0, 0, $month, 1, $year));
@@ -52,27 +54,26 @@ elseif($week_start == 5) // Friday
         for($list_day = 1; $list_day <= $days_in_month; $list_day++)
         {
             $time = strtotime($year.'-'.$month.'-'.$list_day);
-            $date_suffix = (isset($settings['date_suffix']) && $settings['date_suffix'] == '0') ? date_i18n('jS', $time) : date_i18n('j', $time);
+            $date_suffix = (isset($settings['date_suffix']) && $settings['date_suffix'] == '0') ? $this->main->date_i18n('jS', $time) : $this->main->date_i18n('j', $time);
 
             $today = date('Y-m-d', $time);
             $day_id = date('Ymd', $time);
             $selected_day = (str_replace('-', '', $this->active_day) == $day_id) ? ' mec-selected-day' : '';
             $selected_day_date = (str_replace('-', '', $this->active_day) == $day_id) ? 'mec-color' : '';
+
             // Print events
             if(isset($events[$today]) and count($events[$today]))
             {
                 echo '<dt class="mec-calendar-day'.$selected_day.'" data-mec-cell="'.$day_id.'" data-day="'.$list_day.'" data-month="'.date('Ym', $time).'"><div class="'.$selected_day_date.'">'.$list_day.'</div>';
                 foreach($events[$today] as $event)
                 {
-                    $location = isset($event->data->locations[$event->data->meta['mec_location_id']])? $event->data->locations[$event->data->meta['mec_location_id']] : array();
                     $event_color = isset($event->data->meta['mec_color'])? '#'.$event->data->meta['mec_color']:'';
                     $start_time = (isset($event->data->time) ? $event->data->time['start'] : '');
                     $end_time = (isset($event->data->time) ? $event->data->time['end'] : '');
                     
-                    
                     echo '<div class="'.((isset($event->data->meta['event_past']) and trim($event->data->meta['event_past'])) ? 'mec-past-event ' : '').'ended-relative simple-skin-ended">';
                     echo '<a class="mec-monthly-tooltip event-single-link-simple" data-tooltip-content="#mec-tooltip-'.$event->data->ID.'-'.$day_id.'" data-event-id="'.$event->data->ID.'" href="'.$this->main->get_event_date_permalink($event->data->permalink, $event->date['start']['date']).'">';
-                    echo '<h4 class="mec-event-title">'.$event->data->title.'</h4>';
+                    echo '<h4 class="mec-event-title">'.$event->data->title.'</h4>'.$this->main->get_normal_labels($event, $display_label).$this->main->display_cancellation_reason($event->data->ID, $reason_for_cancellation);
                     echo '</a>';
                     echo '</div>';
 
@@ -82,59 +83,12 @@ elseif($week_start == 5) // Friday
                     $tooltip_content .= (!empty($event->data->thumbnails['thumbnail']) || !empty($event->data->content)) ? '<div class="mec-tooltip-event-content">' : '' ;
                     $tooltip_content .= !empty($event->data->thumbnails['thumbnail']) ? '<div class="mec-tooltip-event-featured">'.$event->data->thumbnails['thumbnail'].'</div>' : '' ;
                     $tooltip_content .= !empty(!empty($event->data->content)) ? '<div class="mec-tooltip-event-desc">'.$this->main->mec_content_html($event->data->content, 320).' , ...</div>' : '' ;
+                    if($this->localtime) $tooltip_content .= $this->main->module('local-time.type2', array('event'=>$event));
                     $tooltip_content .= (!empty($event->data->thumbnails['thumbnail']) || !empty($event->data->content)) ? '</div>' : '' ;
-                    $speakers = '""';
-                    if ( !empty($event->data->speakers)) 
-                    {
-                        $speakers= [];
-                        foreach ($event->data->speakers as $key => $value) {
-                            $speakers[] = array(
-                                "@type" 	=> "Person",
-                                "name"		=> $value['name'],
-                                "image"		=> $value['thumbnail'],
-                                "sameAs"	=> $value['facebook'],
-                            );
-                        } 
-                        $speakers = json_encode($speakers);
-                    }
-                    $startDate = !empty( $event->data->meta['mec_date']['start']['date'] ) ? $event->data->meta['mec_date']['start']['date'] : '';
-                    $endDate = !empty( $event->data->meta['mec_date']['end']['date'] ) ? $event->data->meta['mec_date']['end']['date'] : '' ;
-                    $location_name = isset($location['name']) ? $location['name'] : '' ;
-                    $location_image = isset($location['thumbnail']) ? esc_url($location['thumbnail'] ) : '' ;
-                    $location_address = isset($location['address']) ? $location['address'] : '' ;
-                    $image = !empty($event->data->featured_image['full']) ? esc_html($event->data->featured_image['full']) : '' ;
-                    $price_schema = isset($event->data->meta['mec_cost']) ? $event->data->meta['mec_cost'] : '' ; 
-                    $currency_schema = isset($settings['currency']) ? $settings['currency'] : '' ;
-                    $schema_settings = isset( $settings['schema'] ) ? $settings['schema'] : '';
-                    if($schema_settings == '1' ):                    
-                    echo '
-                    <script type="application/ld+json">
-                    {
-                        "@context" 		: "http://schema.org",
-                        "@type" 		: "Event",
-                        "startDate" 	: "' . $startDate . '",
-                        "endDate" 		: "' . $endDate  . '",
-                        "location" 		:
-                        {
-                            "@type" 	: "Place",
-                            "name" 		: "' . $location_name . '",
-                            "image"		: "' . $location_image  . '",
-                            "address"	: "' .  $location_address . '"
-                        },
-                        "offers": {
-                            "url": "'. $event->data->permalink .'",
-                            "price": "' . $price_schema.'",
-                            "priceCurrency" : "' . $currency_schema .'"
-                        },
-                        "performer":  '. $speakers . ',
-                        "description" 	: "' . esc_html(preg_replace('/<p>\\s*?(<a .*?><img.*?><\\/a>|<img.*?>)?\\s*<\\/p>/s', '<div class="figure">$1</div>', preg_replace('/\s/u', ' ', $event->data->post->post_content))) . '",
-                        "image" 		: "'. $image . '",
-                        "name" 			: "' .esc_html($event->data->title) . '",
-                        "url"			: "'. $this->main->get_event_date_permalink($event->data->permalink, $event->date['start']['date']) . '"
-                    }
-                    </script>
-                    ';
-                    endif;
+
+                    // MEC Schema
+                    do_action('mec_schema', $event);
+
                     echo '
                         <div class="tooltip_templates event-single-content-simple">
                             <div id="mec-tooltip-'.$event->data->ID.'-'.$day_id.'">

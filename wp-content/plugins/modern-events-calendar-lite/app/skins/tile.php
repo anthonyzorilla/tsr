@@ -12,7 +12,10 @@ class MEC_skin_tile extends MEC_skins
      * @var string
      */
     public $skin = 'tile';
+    public $load_method = 'month';
 
+    public $reason_for_cancellation;
+    public $display_label;
     public $date_format_clean_1;
     public $date_format_clean_2;
     
@@ -33,6 +36,9 @@ class MEC_skin_tile extends MEC_skins
     {
         $this->factory->action('wp_ajax_mec_tile_load_month', array($this, 'load_month'));
         $this->factory->action('wp_ajax_nopriv_mec_tile_load_month', array($this, 'load_month'));
+
+        $this->factory->action('wp_ajax_mec_tile_load_more', array($this, 'load_more'));
+        $this->factory->action('wp_ajax_nopriv_mec_tile_load_more', array($this, 'load_more'));
     }
     
     /**
@@ -52,12 +58,21 @@ class MEC_skin_tile extends MEC_skins
         
         // Search Form Options
         $this->sf_options = (isset($this->atts['sf-options']) and isset($this->atts['sf-options'][$this->skin])) ? $this->atts['sf-options'][$this->skin] : array();
+
+        // reason_for_cancellation
+        $this->reason_for_cancellation = isset($this->skin_options['reason_for_cancellation']) ? $this->skin_options['reason_for_cancellation'] : false;
+
+        // display_label
+        $this->display_label = isset($this->skin_options['display_label']) ? $this->skin_options['display_label'] : false;
         
         // Search Form Status
         $this->sf_status = isset($this->atts['sf_status']) ? $this->atts['sf_status'] : true;
 
         // Generate an ID for the sking
         $this->id = isset($this->atts['id']) ? $this->atts['id'] : mt_rand(100, 999);
+
+        // Show "Load More" button or not
+        $this->load_more_button = isset($this->skin_options['load_more_button']) ? $this->skin_options['load_more_button'] : true;
         
         // Set the ID
         if(!isset($this->atts['id'])) $this->atts['id'] = $this->id;
@@ -67,6 +82,9 @@ class MEC_skin_tile extends MEC_skins
         
         // Next/Previous Month
         $this->next_previous_button = isset($this->skin_options['next_previous_button']) ? $this->skin_options['next_previous_button'] : true;
+
+        // Load Method
+        $this->load_method = $this->next_previous_button ? 'month' : 'list';
         
         // Override the style if the style forced by us in a widget etc
         if(isset($this->atts['style']) and trim($this->atts['style']) != '') $this->style = $this->atts['style'];
@@ -114,7 +132,7 @@ class MEC_skin_tile extends MEC_skins
         
         // Pagination Options
         $this->paged = get_query_var('paged', 1);
-        $this->limit = 500;
+        $this->limit = (isset($this->skin_options['limit']) and trim($this->skin_options['limit'])) ? $this->skin_options['limit'] : 80;
 
         $this->args['posts_per_page'] = $this->limit;
         $this->args['paged'] = $this->paged;
@@ -158,7 +176,7 @@ class MEC_skin_tile extends MEC_skins
         else
         {
             $start = $this->start_date;
-            $end = date('Y-m-t', strtotime($this->start_date));
+            $end = ($this->load_method === 'month' ? date('Y-m-t', strtotime($this->start_date)) : date('Y-m-t', strtotime('+10 Year', strtotime($start))));
         }
 
         // Date Events
@@ -167,7 +185,10 @@ class MEC_skin_tile extends MEC_skins
         // Limit
         $this->args['posts_per_page'] = $this->limit;
 
+        $i = 0;
+        $found = 0;
         $events = array();
+
         foreach($dates as $date=>$IDs)
         {
             // No Event
@@ -175,6 +196,18 @@ class MEC_skin_tile extends MEC_skins
 
             // Include Available Events
             $this->args['post__in'] = $IDs;
+
+            // Extending the end date
+            $this->end_date = $date;
+
+            // Continue to load rest of events in the first date
+            if($i === 0) $this->args['offset'] = $this->offset;
+            // Load all events in the rest of dates
+            else
+            {
+                $this->offset = 0;
+                $this->args['offset'] = 0;
+            }
 
             // The Query
             $query = new WP_Query($this->args);
@@ -199,13 +232,30 @@ class MEC_skin_tile extends MEC_skins
                         'end'=>array('date'=>$this->main->get_end_date($date, $rendered))
                     );
 
-                    $events[$date][] = $data;
+                    $events[$date][] = $this->render->after_render($data);
+                    $found++;
+
+                    if($this->load_method === 'list' and $found >= $this->limit)
+                    {
+                        // Next Offset
+                        $this->next_offset = ($query->post_count-($query->current_post+1)) >= 0 ? ($query->current_post+1)+$this->offset : 0;
+
+                        // Restore original Post Data
+                        wp_reset_postdata();
+
+                        break 2;
+                    }
                 }
             }
 
             // Restore original Post Data
             wp_reset_postdata();
+
+            $i++;
         }
+
+        // Set found events
+        $this->found = $found;
 
         return $events;
     }
@@ -301,7 +351,8 @@ class MEC_skin_tile extends MEC_skins
             $this->end_date = $this->start_date;
             
             // Return the events
-            $this->atts['return_items'] = true;
+            if($this->load_method === 'month') $this->atts['return_items'] = true;
+            else $this->atts['return_only_items'] = true;
             
             // Fetch the events
             $this->fetch();
@@ -323,6 +374,41 @@ class MEC_skin_tile extends MEC_skins
         // Return the output
         $output = $this->output();
         
+        echo json_encode($output);
+        exit;
+    }
+
+    /**
+     * Load more events for AJAX requert
+     * @author Webnus <info@webnus.biz>
+     * @return void
+     */
+    public function load_more()
+    {
+        $this->sf = $this->request->getVar('sf', array());
+        $apply_sf_date = $this->request->getVar('apply_sf_date', 1);
+        $atts = $this->sf_apply($this->request->getVar('atts', array()), $this->sf, $apply_sf_date);
+
+        // Initialize the skin
+        $this->initialize($atts);
+
+        // Override variables
+        $this->start_date = $this->request->getVar('mec_start_date', date('y-m-d'));
+        $this->end_date = $this->start_date;
+        $this->offset = $this->request->getVar('mec_offset', 0);
+
+        // Apply Maximum Date
+        if($apply_sf_date == 1 and isset($this->sf) and isset($this->sf['month']) and trim($this->sf['month'])) $this->maximum_date = date('Y-m-t', strtotime($this->start_date));
+
+        // Return the events
+        $this->atts['return_only_items'] = true;
+
+        // Fetch the events
+        $this->fetch();
+
+        // Return the output
+        $output = $this->output();
+
         echo json_encode($output);
         exit;
     }

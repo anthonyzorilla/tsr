@@ -24,6 +24,8 @@ class vkontakte
     {
         $appslist = maybe_unserialize(get_option('mo_openid_apps_list'));
         $social_app_redirect_uri= get_social_app_redirect_uri('vkontakte');
+        mo_openid_start_session();
+        $_SESSION["appname"] = 'vkontakte';
         $client_id = $appslist['vkontakte']['clientid'];
         $scope = $appslist['vkontakte']['scope'];
         $login_dialog_url ='https://oauth.vk.com/authorize?client_id='.$client_id.'&scope='.$scope.'&response_type=code&redirect_uri=' . $social_app_redirect_uri .'&v=5.69';
@@ -44,6 +46,7 @@ class vkontakte
         $access_token_json_output = mo_openid_get_access_token($postData, $access_token_uri,'vkontakte');
         $access_token = isset($access_token_json_output['access_token']) ? $access_token_json_output['access_token'] : '';
         $userid = isset($access_token_json_output['user_id']) ? $access_token_json_output['user_id'] : '';
+        mo_openid_start_session();
         $profile_url = 'https://api.vk.com/method/users.get?uids='. $userid . '&fields=uid,hash,occupation,photos,first_name,last_name,nickname,domain,site,education,relation,timezone,screen_name,sex,bdate,city,country,timezone,photo,lists,contacts,universities,schools,status,about&access_token=' . $access_token.'&v=5.69';
         $profile_json_output = mo_openid_get_social_app_data($access_token, $profile_url,'vkontakte');
 

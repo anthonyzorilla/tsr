@@ -6,7 +6,7 @@
  * This file is used to markup the admin-facing aspects of the plugin.
  *
  * @link       https://pagevisitcounter.com
- * @since      2.6.3
+ * @since      3.0.1
  *
  * @package    Advanced_Visit_Counter
  * @subpackage Advanced_Visit_Counter/admin/partials

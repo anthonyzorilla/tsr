@@ -21,6 +21,8 @@ class yahoo
     {
         $appslist = maybe_unserialize(get_option('mo_openid_apps_list'));
         $social_app_redirect_uri= get_social_app_redirect_uri('yahoo');
+        mo_openid_start_session();
+        $_SESSION["appname"] = 'yahoo';
         $client_id = $appslist['yahoo']['clientid'];
         $login_dialog_url= 'https://api.login.yahoo.com/oauth2/request_auth?client_id='.$client_id.'&redirect_uri='.$social_app_redirect_uri.'&response_type=code&language=en-us';
         header('Location:'. $login_dialog_url);
@@ -38,6 +40,7 @@ class yahoo
         $postData = 'client_id='. $client_id .'&client_secret=' . $client_secret . '&redirect_uri=' . $social_app_redirect_uri.'&code=' . $code . '&grant_type=authorization_code';
         $access_token_json_output = mo_openid_get_access_token($postData, $access_token_uri,'yahoo');
         $access_token = isset($access_token_json_output['access_token']) ? $access_token_json_output['access_token'] : '';
+        mo_openid_start_session();
         $profile_url = 'https://api.login.yahoo.com/openid/v1/userinfo';
         $profile_json_output = mo_openid_get_social_app_data($access_token, $profile_url,'yahoo');
 

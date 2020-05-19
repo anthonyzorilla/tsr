@@ -4,93 +4,72 @@
  * Fired during plugin activation
  *
  * @link       https://pagevisitcounter.com
- * @since      2.6.3
+ * @since      3.0.1
  *
  * @package    Advanced_Visit_Counter
  * @subpackage Advanced_Visit_Counter/includes
  */
-
 /**
  * Fired during plugin activation.
  *
  * This class defines all code necessary to run during the plugin's activation.
  *
- * @since      2.6.3
+ * @since      3.0.1
  * @package    Advanced_Visit_Counter
  * @subpackage Advanced_Visit_Counter/includes
  * @author     Ankit Panchal <ankitmaru@live.in>
  */
-class Advanced_Visit_Counter_Activator {
-
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    2.6.3
-	 */
-	public static function activate() {
-		global $wpdb;
-
-		$avc_config = array();
-		$history_table = $wpdb->prefix . "avc_page_visit_history";
-
-		$avc_config['post_types'] = array( "post", "page" );
-		$avc_config['ip_address'] = array();
-		$avc_config['exclude_counts'] = array();
-		$avc_config['exclude_users'] = array(); 
-		$avc_config['exclude_show_counter'] = array(); 
-		$avc_config['spam_controller'] = "false";
-		$avc_config['show_conter_on_fron_side'] = "below_the_content";
-		$avc_config['avc_default_text_color_of_counter'] = "#000000";
-		$avc_config['apv_default_label'] = "Visits: ";
-		$avc_config['apv_default_border_radius'] = 0;
-		$avc_config['apv_default_background_color'] = "#ffffff";
-		$avc_config['apv_default_border_color'] = "#000000";
-		$avc_config['apv_default_border_width'] = "2";
-		$avc_config['wid_alignment'] = "left";
-		
-		$avc_config['show_today_count'] = "false";
-		$avc_config['show_global_count'] = "false";
-		$avc_config['widget_width'] = "300";
-
-		add_option("avc_config",json_encode($avc_config));
-
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		$sqlAlter = "ALTER TABLE $history_table DROP COLUMN article_title";
-		$wpdb->query( $sqlAlter );
-		$addColumn = "ALTER TABLE $history_table ADD country TEXT AFTER flag";
-		$wpdb->query( $addColumn );
-		// dbDelta( $sqlAlter );
-		
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$history_table'" ) != $history_table ) {
-			$sql = "CREATE TABLE $history_table (
-				id int(11) unsigned NOT NULL AUTO_INCREMENT,
-				article_id int(11) NOT NULL,
-				article_type text NOT NULL,
-				user_type text NOT NULL,
-				device_type text NOT NULL,
-				date  datetime NOT NULL,
-				last_date  datetime NOT NULL,
-				ip_address varchar(255) NOT NULL,
-				browser_full_name varchar(255) NOT NULL,
-				browser_short_name varchar(255) NOT NULL,
-				browser_version varchar(255) NOT NULL,
-				operating_system varchar(255) NOT NULL,
-				http_referer varchar(255) NOT NULL,
-				user_id int(9) NOT NULL,
-				site_id int(9) NOT NULL,
-				flag int(1) NULL,
-				country varchar(255),
-				PRIMARY KEY  (id)
-			);";
-
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			dbDelta( $sql );
-		}
-
-		update_option("apvc_version","2.6.3");
-		update_option("apvc_newsletter","show");
-	}
+class Advanced_Visit_Counter_Activator
+{
+    /**
+     * Short Description. (use period)
+     *
+     * Long Description.
+     *
+     * @since    3.0.1
+     */
+    public static function activate()
+    {
+        global  $wpdb ;
+        $version = get_option( "apvc_version" );
+        $history_table = $wpdb->prefix . "avc_page_visit_history";
+        $apvc_config = array();
+        $apvc_config['apvc_post_types'] = array( "post", "page" );
+        $apvc_config['apvc_ip_address'] = array();
+        $apvc_config['apvc_exclude_counts'] = array();
+        $apvc_config['apvc_exclude_users'] = array();
+        $apvc_config['apvc_exclude_show_counter'] = array();
+        $apvc_config['apvc_spam_controller'] = "";
+        $apvc_config['apvc_show_conter_on_front_side'] = array( "below_the_content" );
+        $apvc_config['apvc_default_text_color'] = array( "#000000" );
+        $apvc_config['apvc_default_label'] = array( "Visits: " );
+        $apvc_config['apvc_todays_label'] = array( "Today: " );
+        $apvc_config['apvc_global_label'] = array( "Total: " );
+        $apvc_config['apvc_default_border_radius'] = array( 0 );
+        $apvc_config['apvc_default_background_color'] = array( "#ffffff" );
+        $apvc_config['apvc_default_border_color'] = array( "#000000" );
+        $apvc_config['apvc_default_border_width'] = array( 2 );
+        $apvc_config['apvc_wid_alignment'] = array( "center" );
+        $apvc_config['apvc_show_today_count'] = "";
+        $apvc_config['apvc_show_global_count'] = "";
+        $apvc_config['apvc_widget_width'] = array( 300 );
+        $apvc_config['apvc_atc_page_count'] = array( 'on' );
+        update_option( "apvc_configurations", $apvc_config );
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        $sqlAlter = "ALTER TABLE {$history_table} DROP COLUMN article_title";
+        $wpdb->query( $sqlAlter );
+        $addColumn = "ALTER TABLE {$history_table} ADD country TEXT AFTER flag";
+        $wpdb->query( $addColumn );
+        
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '{$history_table}'" ) != $history_table ) {
+            $sql = "CREATE TABLE {$history_table} (\n\t\t\t\tid int(11) unsigned NOT NULL AUTO_INCREMENT,\n\t\t\t\tarticle_id int(11) NOT NULL,\n\t\t\t\tarticle_type text NOT NULL,\n\t\t\t\tuser_type text NOT NULL,\n\t\t\t\tdevice_type text NOT NULL,\n\t\t\t\tdate  datetime NOT NULL,\n\t\t\t\tlast_date  datetime NOT NULL,\n\t\t\t\tip_address varchar(255) NOT NULL,\n\t\t\t\tbrowser_full_name varchar(255) NOT NULL,\n\t\t\t\tbrowser_short_name varchar(255) NOT NULL,\n\t\t\t\tbrowser_version varchar(255) NOT NULL,\n\t\t\t\toperating_system varchar(255) NOT NULL,\n\t\t\t\thttp_referer varchar(255) NOT NULL,\n\t\t\t\tuser_id int(9) NOT NULL,\n\t\t\t\tsite_id int(9) NOT NULL,\n\t\t\t\tflag int(1) NULL,\n\t\t\t\tcountry varchar(255),\n\t\t\t\tPRIMARY KEY  (id)\n\t\t\t);";
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+            dbDelta( $sql );
+        }
+        
+        update_option( "apvc_version", "3.0.4" );
+        delete_option( "apvc_newsletter" );
+        delete_option( "avc_config" );
+    }
 
 }

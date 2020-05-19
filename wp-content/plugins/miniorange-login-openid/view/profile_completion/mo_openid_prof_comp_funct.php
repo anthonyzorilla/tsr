@@ -165,10 +165,9 @@ function send_otp_token($email){
     $response = wp_mail($email, $subject,$message);
 
     if($response){
-        setcookie('mo_otptoken', 'true', 0,"/");
-        $_COOKIE['mo_otptoken']='true';
-        setcookie('otp_start_time', time(), 0,"/");
-        $_COOKIE['otp_start_time']=time();
+        mo_openid_start_session();
+        $_SESSION['mo_otptoken'] = true;
+        $_SESSION['sent_on'] = time();
         $content = array('status' => 'SUCCESS','tId' => $transactionId);
     }
     else
@@ -177,15 +176,16 @@ function send_otp_token($email){
 }
 
 function validate_otp_token($transactionId,$otpToken){
+    mo_openid_start_session();
     $customerKey = get_option('mo_openid_admin_customer_key');
-    $my_mood = $_COOKIE['mo_otptoken'];
-    if($my_mood == "true"){
-        $pass =	checkTimeStamp($_COOKIE['otp_start_time'],time());
+    if($_SESSION['mo_otptoken']){
+        $pass =	checkTimeStamp($_SESSION['sent_on'],time());
         $pass = checkTransactionId($customerKey, $otpToken, $transactionId, $pass);
         if($pass)
             $content = array('status' => 'SUCCESS');
         else
             $content = array('status' => 'FAILURE');
+        unset($_SESSION['$mo_otptoken']);
     }
     else
         $content = array('status' =>'FAILURE');
@@ -235,6 +235,7 @@ function mo_openid_social_login_validate_otp($username, $user_email, $first_name
                 $user = get_user_by('id', $existing_email_user_id);
                 $user_id = $user->ID;
             }
+            mo_openid_start_session_login($user_details);
             mo_openid_login_user($user_email,$user_id,$user,$user_picture,1);
             exit;
         }else{

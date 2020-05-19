@@ -20,6 +20,10 @@ function select_comment_customize(){
                     <td><input class="mo_openid_textfield_css" style="border: 1px solid ;border-color: #0867b2;width: 70%" type="text" name="mo_openid_social_comment_fb_label"  value="<?php echo esc_attr(get_option('mo_openid_social_comment_fb_label')); ?>" /></td>
                 </tr>
                 <tr>
+                    <td><b><?php echo mo_sl('Comments - Disqus Label');?>:</b></td>
+                    <td><input class="mo_openid_textfield_css" style="border: 1px solid ;border-color: #0867b2;width: 70%" type="text" name="mo_openid_social_comment_disqus_label"  value="<?php echo esc_attr(get_option('mo_openid_social_comment_disqus_label')); ?>" /></td>
+                </tr>
+                <tr>
                     <td colspan="2"><br /><input type="submit" name="submit" value="<?php echo mo_sl('Save');?>" style="width:100px;"  class="button button-primary button-large" />
                     </td>
                 </tr>

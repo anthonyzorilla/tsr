@@ -148,7 +148,7 @@ class MEC_render extends MEC_base
      */
     public function vfull($atts = array())
     {
-        $atts = apply_filters('default', $atts);
+        $atts = apply_filters('mec_vfull_atts', $atts);
         $skin = 'full_calendar';
         
         return $this->skin($skin, $atts);
@@ -250,6 +250,20 @@ class MEC_render extends MEC_base
         $atts = apply_filters('mec_vlist_atts', $atts);
         $skin = 'list';
         
+        return $this->skin($skin, $atts);
+    }
+
+    /**
+     * Do the tile skin and returns its output
+     * @author Webnus <info@webnus.biz>
+     * @param array $atts
+     * @return string
+     */
+    public function vtile($atts = array())
+    {
+        $atts = apply_filters('mec_vtile_atts', $atts);
+        $skin = 'tile';
+
         return $this->skin($skin, $atts);
     }
 
@@ -528,7 +542,7 @@ class MEC_render extends MEC_base
         if(trim($thumbnail) == '' and trim($medium) != '') $thumbnail = preg_replace("/height=\"[0-9]*\"/", 'height="150"', preg_replace("/width=\"[0-9]*\"/", 'width="150"', $medium));
         elseif(trim($thumbnail) == '' and trim($large) != '') $thumbnail = preg_replace("/height=\"[0-9]*\"/", 'height="150"', preg_replace("/width=\"[0-9]*\"/", 'width="150"', $large));
         
-        $data->thumbnails = array(
+        $dataThumbnails = apply_filters('mec-render-data-thumbnails', [
             'thumbnail'=>$thumbnail,
             'thumblist'=>$thumblist,
             'gridsquare'=>$gridsquare,
@@ -537,10 +551,11 @@ class MEC_render extends MEC_base
             'large'=>$large,
             'full'=>$full,
             'tileview'=>$tileview
-        );
-        
+        ], $post_id);
+        $data->thumbnails = $dataThumbnails;
+
         // Featured image URLs
-        $data->featured_image = array(
+        $dataFeaturedImage = apply_filters('mec-render-data-featured-image', array(
             'thumbnail'=>esc_url(get_the_post_thumbnail_url($post_id, 'thumbnail')),
             'thumblist'=>esc_url(get_the_post_thumbnail_url($post_id, 'thumblist' )),
             'gridsquare'=>esc_url(get_the_post_thumbnail_url($post_id, 'gridsquare' )),
@@ -549,7 +564,8 @@ class MEC_render extends MEC_base
             'large'=>esc_url(get_the_post_thumbnail_url($post_id, 'large')),
             'full'=>esc_url(get_the_post_thumbnail_url($post_id, 'full')),
             'tileview'=>esc_url(get_the_post_thumbnail_url($post_id, 'tileview'))
-        );
+        ), $post_id);
+        $data->featured_image = $dataFeaturedImage;
 
         $taxonomies = array('mec_label', 'mec_organizer', 'mec_location', 'mec_category', 'post_tag');
         if(isset($this->settings['speakers_status']) and $this->settings['speakers_status']) $taxonomies[] = 'mec_speaker';
@@ -562,9 +578,10 @@ class MEC_render extends MEC_base
 
             if($term->taxonomy == 'mec_label') $data->labels[$term->term_id] = array('id'=>$term->term_id, 'name'=>$term->name, 'color'=>get_metadata('term', $term->term_id, 'color', true), 'style'=>get_metadata('term', $term->term_id, 'style', true));
             elseif($term->taxonomy == 'mec_organizer') $data->organizers[$term->term_id] = array('id'=>$term->term_id, 'name'=>$term->name, 'tel'=>get_metadata('term', $term->term_id, 'tel', true), 'email'=>get_metadata('term', $term->term_id, 'email', true), 'url'=>get_metadata('term', $term->term_id, 'url', true), 'thumbnail'=>get_metadata('term', $term->term_id, 'thumbnail', true));
-            elseif($term->taxonomy == 'mec_location') {
-                $locations = array('id'=>$term->term_id, 'name'=>$term->name, 'address'=>get_metadata('term', $term->term_id, 'address', true), 'latitude'=>get_metadata('term', $term->term_id, 'latitude', true), 'longitude'=>get_metadata('term', $term->term_id, 'longitude', true), 'thumbnail'=>get_metadata('term', $term->term_id, 'thumbnail', true));
-                $data->locations[$term->term_id] = apply_filters( 'mec_map_load_location_terms', $locations, $term );
+            elseif($term->taxonomy == 'mec_location')
+            {
+                $locations = array('id'=>$term->term_id, 'name'=>$term->name, 'address'=>get_metadata('term', $term->term_id, 'address', true), 'latitude'=>get_metadata('term', $term->term_id, 'latitude', true), 'longitude'=>get_metadata('term', $term->term_id, 'longitude', true), 'url'=>get_metadata('term', $term->term_id, 'url', true), 'thumbnail'=>get_metadata('term', $term->term_id, 'thumbnail', true));
+                $data->locations[$term->term_id] = apply_filters('mec_map_load_location_terms', $locations, $term);
             }
             elseif($term->taxonomy == 'mec_category') $data->categories[$term->term_id] = array('id'=>$term->term_id, 'name'=>$term->name);
             elseif($term->taxonomy == 'post_tag') $data->tags[$term->term_id] = array('id'=>$term->term_id, 'name'=>$term->name);
@@ -604,6 +621,46 @@ class MEC_render extends MEC_base
         wp_cache_set($post_id, $data, 'mec-events-data', 43200);
         
         return $data;
+    }
+
+    public function after_render($event)
+    {
+        // If event is custom days and current date is available
+        if(isset($event->data) and isset($event->data->meta) and isset($event->data->meta['mec_repeat_type']) and $event->data->meta['mec_repeat_type'] === 'custom_days' and isset($event->data->mec) and isset($event->data->mec->days) and isset($event->date) and is_array($event->date) and isset($event->date['start']) and isset($event->date['start']['date']))
+        {
+            $days_str = $event->data->mec->days;
+            if(trim($days_str))
+            {
+                $date = $event->date['start']['date'];
+
+                $periods = explode(',', $days_str);
+                foreach($periods as $period)
+                {
+                    $ex = explode(':', $period);
+
+                    if(isset($ex[0]) and $date === $ex[0] and isset($ex[2]) and isset($ex[3]))
+                    {
+                        $pos = strpos($ex[2], '-');
+                        if($pos !== false) $ex[2] = substr_replace($ex[2], ':', $pos, 1);
+
+                        $pos = strpos($ex[3], '-');
+                        if($pos !== false) $ex[3] = substr_replace($ex[3], ':', $pos, 1);
+
+                        $start_time = $ex[0].' '.str_replace('-', ' ', $ex[2]);
+                        $end_time =  $ex[1].' '.str_replace('-', ' ', $ex[3]);
+
+                        $hide_end_time = isset($event->data->meta['mec_hide_end_time']) ? $event->data->meta['mec_hide_end_time'] : 0;
+
+                        $event->data->time = array(
+                            'start'=>$this->main->get_time(strtotime($start_time)),
+                            'end'=>($hide_end_time ? '' : $this->main->get_time(strtotime($end_time)))
+                        );
+                    }
+                }
+            }
+        }
+
+        return $event;
     }
     
     /**
@@ -810,6 +867,9 @@ class MEC_render extends MEC_base
             }
             elseif($repeat_type == 'yearly')
             {
+                // Start from Event Start Date
+                if(strtotime($start_date['date']) > strtotime($original_start_date)) $original_start_date = $start_date['date'];
+
                 $event_days = explode(',', trim($event->mec->day, ', '));
                 $event_months = explode(',', trim($event->mec->month, ', '));
                 
@@ -889,10 +949,31 @@ class MEC_render extends MEC_base
 
                     // Date is past
                     if(strtotime($cday[0]) < strtotime($today)) continue;
-                    
+
+                    $cday_start_hour = $event->meta['mec_date']['start']['hour'];
+                    $cday_start_minutes = $event->meta['mec_date']['start']['minutes'];
+                    $cday_start_ampm = $event->meta['mec_date']['start']['ampm'];
+
+                    $cday_end_hour = $event->meta['mec_date']['end']['hour'];
+                    $cday_end_minutes = $event->meta['mec_date']['end']['minutes'];
+                    $cday_end_ampm = $event->meta['mec_date']['end']['ampm'];
+
+                    if(isset($cday[2]) and isset($cday[3]))
+                    {
+                        $cday_start_ex = explode('-', $cday[2]);
+                        $cday_start_hour = $cday_start_ex[0];
+                        $cday_start_minutes = $cday_start_ex[1];
+                        $cday_start_ampm = $cday_start_ex[2];
+
+                        $cday_end_ex = explode('-', $cday[3]);
+                        $cday_end_hour = $cday_end_ex[0];
+                        $cday_end_minutes = $cday_end_ex[1];
+                        $cday_end_ampm = $cday_end_ex[2];
+                    }
+
                     if(!in_array($cday[0], $exceptional_days)) $dates[] = array(
-                        'start'=>array('date'=>$cday[0], 'hour'=>$event->meta['mec_date']['start']['hour'], 'minutes'=>$event->meta['mec_date']['start']['minutes'], 'ampm'=>$event->meta['mec_date']['start']['ampm']),
-                        'end'=>array('date'=>$cday[1], 'hour'=>$event->meta['mec_date']['end']['hour'], 'minutes'=>$event->meta['mec_date']['end']['minutes'], 'ampm'=>$event->meta['mec_date']['end']['ampm']),
+                        'start'=>array('date'=>$cday[0], 'hour'=>$cday_start_hour, 'minutes'=>$cday_start_minutes, 'ampm'=>$cday_start_ampm),
+                        'end'=>array('date'=>$cday[1], 'hour'=>$cday_end_hour, 'minutes'=>$cday_end_minutes, 'ampm'=>$cday_end_ampm),
                         'allday'=>$allday,
                         'hide_time'=>$hide_time,
                         'past'=>0
@@ -949,7 +1030,6 @@ class MEC_render extends MEC_base
     
         // Set last month for include current month results
         $month = date('m', strtotime('first day of last month', strtotime($event_info['start']['date'])));
-        $current_day = date("d", strtotime($event_info['start']['date']));
 
         if($month == '12') $year = $year - 1;
     
@@ -995,7 +1075,7 @@ class MEC_render extends MEC_base
                 $index = intval($d[1]) ? (intval($d[1]) - 1) : 4;
     
                 // Generate date
-                $date = "{$year}-{$month}-{$current_day}";
+                $date = date('Y-m-t', strtotime("{$year}-{$month}-01"));
     
                 // Generate start date for example "first Sun of next month"
                 $start = date('Y-m-d', strtotime("{$levels[$index]} {$d[0]} of next month", strtotime($date)));

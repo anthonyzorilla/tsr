@@ -5,11 +5,11 @@ Author: Ankit Panchal
 Donate link: https://www.paypal.me/ankitpanchalwp
 Author URI: https://www.iamankitp.com/
 Contributors: ankitmaru
-Stable tag: 2.6
+Stable tag: 3.5
 Tags: page counter,page visit, post counter, post visit, wordpress post view, wordpress page view, page visit graph, post visit graph, 
 Requires at least: 3.9
 Requires PHP: 5.2.4
-Tested up to: 5.3
+Tested up to: 5.4
 Donate link: https://www.paypal.me/ankitpanchalwp
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,13 +17,11 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 This plugin will count the total visits of your website or ecommerce store.
 
 == Description ==
-Page visit counter used for frontend side post, custom post types and pages visits counts. After activating the plugin you have to follow very simple steps to configure the plugin. [Advanced Page Visit Counter](https://pagevisitcounter.com/) Subscribe now to get early discount on PRO version releasing soon.
-
-There are various options to show visits counter on the frontend of the website, like, Bottom of the content, Above the content, Or you can generate shortcode from the backend and use it anywhere on the page or posts. 
+Advanced Page visit counter used for frontend side post, custom post types, and page visit count.
 
 This plugin has advanced configuration and parameters you can configure from the backend. 
 
-Request New Featured by visiting this link [Advanced Page Visit Counter](https://pagevisitcounter.com/), Fill the form and request for new features, We will try to do out best to make you happy.
+Request a New Feature by visiting this link [Advanced Page Visit Counter](https://pagevisitcounter.com/), Fill the form and request for new features, We will try to do out best to make you happy.
 
 > awesome! thank you so much for the quick response, i really appreciate that. i really do love this plugin, you’ve done a great job. 🙂
 
@@ -35,53 +33,69 @@ Page visit counter provides very detailed statistics of the visits data. This pl
 ADVANCED PAGE VISIT COUNTER:
 
 = Dashboard (Brand new design to get recent visit data): =
-* Top 10 articles count
-* Top 10 IP Addresses data
-* Top 10 Referer data
-* Top visitors by browser
-* Top visitors by operating system
+* Total Visits Widget (Current Year)
+* Total Visits Monthly Widget (Compare with previous month by using charts.)
+* Total Visits Weekly Widget (Compare with previous week by using charts.)
+* Total Visits Daily Widget (Compare with previous day by using charts.)
+* Real-Times Visitors widget showing page details and visitors country. (*Premium Only)
+* Browser Traffic widget showing visit by browser with a chart.
+* Referral Traffic widget showing visit by referral websites with a chart.
+* Operating System widget showing visit by the operating system with a chart.
 
-= Advanced Page Visit Counter Settings: =
-* In this options you can configure different settings for Advanced Page Visit Counter.
-* Post Type: You can select multiple posts types to capture visits on frontend.
-* Exclude IP Addresses : Add the IP addresses which you want to be excluded from page view counts.
-* Show Counter on Front End : In this setting you can select, Where you want to show your counter on the frontend, Like Above the Content or Below the Content, There more other options as well to customize the visit counter widget on frontned like Text Color, Border Color, Background Color, Border Radius, Border Width etc.
-* Default Label : In this setting, You can choose your default label to show on frontend, Like, Visits, Views, Counter etc.
-* Reset All : By using this you can reset plugin settings very easily.
-* Reset All Counters : By using this you can reset / delete all visits data from your site permanently, Beware before doing this.  
-* (NEW)Widget Alignemnt: Now you can align widget as per your choice very easily by Left, Center or Right alignment.
+= Trending (Brand new design to get recent visit data): =
+* Top 10 Pages Widget. (Showing most visited page's list with recent visit time.)
+* Top 10 Posts Widget. (Showing most visited post's list with recent visit time.)
+* Top 10 Country Widget. (Showing most visited countries list with a recent visit time and country flag.)
+* Top 10 IP Address Widget. (Showing most visited IP addresses list with a recent visit time and country flag.)
 
-** New Feature Added: Now you can set your own custom visit counting starting range from the page/post editor, Check Screenshots.
+= Reports (Brand new design to get recent visit data): =
+* Showing list of pages/posts with total count and recent visit time.
+* Advanced filters, List records for last 10,20,30 days, with date range as well.(*Premium Only)
 
-** New Feature Added: Now you can include All Time Counts, Today's page/articles count in widget or shortcode very easily from the settings. Check screenshot.
-
-= Page Visit Counter Reports: =
-* Trending This Week : In this chart you can get most visited/trending posts/pages/products from your site based on current week statistics.
-* Top Browsers : In this chart you can get the type of browers which are used to visit your pages/posts/products.
-* Top 10 IP Address : In this chart you can get top 10 IP address which visited your site most.
-* Top Referer : In this chart you can get information about referers. 
-* Weekly Report : In this chart you can get total visits counts of past weeks.
-* Monthly Report : In this chart you can get total visits counts of past few months.
-* Country Wise Report : In this chart you can get total visits counts by Countries.
-# Many more features are coming soon.... Keep your copy updated...
+= Detailed Reports (Brand new design to get recent visit data): =
+* Showing list of selected posts/pages total visits and recent visit time.
+* Advanced filters, List records for last 10,20,30 days, with date range, By Country, Devices, Browsers, Operating Systems, User Type(Registerd/Guests) as well.(*Premium Only)
 
 = Shortcode Designer: =
-# In this settings page you can generate your own custom designed shortcode to show your visit counter widget on the frontend.
+# In this settings page, you can generate your own custom-designed shortcode to show your visit counter widget on the frontend.
 * You have to configure few simple parameters like below.
-* Border Size : You can set border width by using this settings.
-* Border Radius : You can set border radius by using this settings.
-* Border Style : You can choose border style from pre-defined border styles by using this settings.
-* Font Size : You can set fonts size from this settings.
-* Border Color : You can choose border color frSom very simple color picker by using this settings.
-* Background Color : You can choose background color from very simple color picker by using this settings.
-* Font Color : You can choose Font color from very simple color picker by using this settings.
-* Font Style : You can choose Font style from pre-defined font styles by using this settings.
-* Padding : You can add padding to your widget from this settings.
-* Width : You can set width of the widget by using this settings.
-* Counter Label : You can add your custom label to show on the frontend widget.
-* (NEW) Shortcode Type: We have added new feature to generate shortcodes. Now you can generate 3 types of shortcodes like, Customized ( For any specific page or individual shortcode ), Global ( This shortcode will give you total count of all the articles from your website. ), Individual ( Now you can generate shortcode for any single article as well, You can show statistics of one page to another page by using this shortcode.)
+* Border Size: You can set border width by using these settings.
+* Border Radius: You can set border-radius by using these settings.
+* Border Style: You can choose border style from pre-defined border styles by using these settings.
+* Font Size: You can set fonts size from these settings.
+* Border Color: You can choose border color from a very simple color picker by using these settings.
+* Background Color: You can choose a background color from a very simple color picker by using these settings.
+* Font Color: You can choose Font color from a very simple color picker by using these settings.
+* Font Style: You can choose Font style from pre-defined font styles by using these settings.
+* Padding: You can add padding to your widget from these settings.
+* Width: You can set the width of the widget by using these settings.
+* Total(Current Page) Counter Label: You can add your custom label to show on the frontend widget.
+* (New) Todays Counter Label: You can add your custom label to show on the frontend widget.
+* (New) Global/Total Counter Label: You can add your custom label to show on the frontend widget.
+* (New) Show/Hide Total(Current Page) widget counter from frontend.
+* (New) Show/Hide Todays widget counter from frontend.
+* (New) Show/Hide global widget counter from frontend.
+* (New) Widgets Templates, List of pre-built templates available in Shortcodes Library for ready to use.
+* (New) Now you can save your shortcode for the future use. (*Premium Only)
+* (New) Shortcodes Library: List of pre-build shortcodes to use.
 
-We always welcome users advise. Please let us know your valuable suggestion about this plugin. I am planning many huge number of features for this plugin in upcoming days.
+
+= Advanced Page Visit Counter Settings: =
+* In these options you can configure different settings for Advanced Page Visit Counter.
+* Post Type: You can select multiple posts types to capture visits on the frontend.
+* Exclude IP Addresses: Add the IP addresses which you want to be excluded from page view counts.
+* Show Counter on Front End: In this setting, you can select, Where you want to show your counter on the frontend, Like Above the Content or Below the Content, There more other options as well to customize the visit counter widget on frontend like Text Color, Border Color, Background Color, Border Radius, Border Width, etc.
+* Default Label: In this setting, You can choose your default label to show on the frontend, Like, Visits, Views, Counter, etc.
+* Reset All: By using this you can reset plugin settings very easily.
+* Reset All Counters: By using this you can reset/delete all visits data from your site permanently, Beware before doing this.  
+* Widget Alignment: Now you can align widget as per your choice very easily by Left, Center, or Right alignment.
+
+** New Feature Added: Widgets Templates, List of pre-built templates available in Shortcodes Library for ready to use.
+** New Feature Added: Todays Counter Label: You can add your custom label to show on the frontend widget.
+** New Feature Added: Global/Total Counter Label: You can add your custom label to show on the frontend widget.
+** New Feature Added: Now Advanced Page Visit Counter availabel in multiple languages.
+
+We always welcome users' advice. Please let us know your valuable suggestions about this plugin.
 
 = You can check our other plugins: =
 <ol>
@@ -105,10 +119,13 @@ OR you can just install it with WordPress Admin Panel by going to Plugins / Add 
 4. Screenshot 4
 5. Screenshot 5
 6. Screenshot 6
+7. Screenshot 7
+8. Screenshot 8
+9. Screenshot 9
 
 == Frequently Asked Questions ==
 
-= Is this plugin works with latest WordPress 5.2 versions? =
+= Is this plugin works with latest WordPress 5.4.1 versions? =
 Yes, It is compatible with latest WordPress versions 4.1+
 
 = Is it compatible with other 3rd party plugins and themes? =
@@ -174,3 +191,18 @@ Automatic updates should work extraordinary for you. As usual, however, We sugge
 
 = 2.6.3 - 16.02.2020 =
 * Bug Fixes & New features added.
+
+= 3.0.0 - 07.05.2020 =
+* New GUI Introduced, New Features and Functionalities introducted.
+
+= 3.0.2 - 09.05.2020 =
+* Bug Fixes & Improved Performance
+
+= 3.0.3 - 11.05.2020 =
+* Improved Performance
+
+= 3.0.4 - 12.05.2020 =
+* Improved Performance
+
+= 3.0.5 - 18.05.2020 =
+* Premium Version Activation Bug Fixes, Exclude Users By Name, Settings Rest Bug Fixed, Translations Added.

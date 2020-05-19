@@ -8,34 +8,34 @@ jQuery(window).load(function () {
 	} else if(document.getElementById("moopenid_social_comment_fb")) {
 		jQuery("#moopenid_comment_form_fb").attr("style","display:block");
 		jQuery("#moopenid_social_comment_fb").addClass("mo_openid_selected_tab");
-	} else if(document.getElementById("moopenid_social_comment_google")){
-		jQuery("#moopenid_comment_form_google").attr("style","display:block");
-		jQuery("#moopenid_social_comment_google").addClass("mo_openid_selected_tab");
+	} else if(document.getElementById("moopenid_social_comment_disqus")){
+		jQuery("#moopenid_comment_form_disqus").attr("style","display:block");
+		jQuery("#moopenid_social_comment_disqus").addClass("mo_openid_selected_tab");
 	}
 
 	jQuery("#moopenid_social_comment_fb").click(function(){
 		jQuery("#moopenid_comment_form_fb").attr("style","display:block");
-		jQuery("#moopenid_comment_form_google").attr("style","display:none");
+		jQuery("#moopenid_comment_form_disqus").attr("style","display:none");
 		jQuery("#moopenid_comment_form_default").attr("style","display:none");
 		jQuery("#moopenid_social_comment_fb").addClass("mo_openid_selected_tab");
 		jQuery("#moopenid_social_comment_default").removeClass("mo_openid_selected_tab");
-		jQuery("#moopenid_social_comment_google").removeClass("mo_openid_selected_tab");
+		jQuery("#moopenid_social_comment_disqus").removeClass("mo_openid_selected_tab");
 	});
 	jQuery("#moopenid_social_comment_default").click(function(){
 		jQuery("#moopenid_comment_form_fb").attr("style","display:none");
-		jQuery("#moopenid_comment_form_google").attr("style","display:none");
+		jQuery("#moopenid_comment_form_disqus").attr("style","display:none");
 		jQuery("#moopenid_comment_form_default").attr("style","display:block");
 		jQuery("#moopenid_social_comment_fb").removeClass("mo_openid_selected_tab");
 		jQuery("#moopenid_social_comment_default").addClass("mo_openid_selected_tab");
-		jQuery("#moopenid_social_comment_google").removeClass("mo_openid_selected_tab");
+		jQuery("#moopenid_social_comment_disqus").removeClass("mo_openid_selected_tab");
 	});
-	jQuery("#moopenid_social_comment_google").click(function(){
+	jQuery("#moopenid_social_comment_disqus").click(function(){
 		jQuery("#moopenid_comment_form_fb").attr("style","display:none");
-		jQuery("#moopenid_comment_form_google").attr("style","display:block");
+		jQuery("#moopenid_comment_form_disqus").attr("style","display:block");
 		jQuery("#moopenid_comment_form_default").attr("style","display:none");
 		jQuery("#moopenid_social_comment_fb").removeClass("mo_openid_selected_tab");
 		jQuery("#moopenid_social_comment_default").removeClass("mo_openid_selected_tab");
-		jQuery("#moopenid_social_comment_google").addClass("mo_openid_selected_tab");
+		jQuery("#moopenid_social_comment_disqus").addClass("mo_openid_selected_tab");
 	});
 });
 

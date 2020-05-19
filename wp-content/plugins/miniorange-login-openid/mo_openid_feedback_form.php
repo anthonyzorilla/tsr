@@ -27,7 +27,6 @@
                     <p style="margin-left:2%">
 
                         <?php
-                        update_option('mo_openid_deactivate_reason',1);
                         $deactivate_reasons = array(
                             "Not Working",
                             "Facebook Login Error",
@@ -51,16 +50,21 @@
                     </div>
                     <span id="link_id_<?php echo $p;$p++;?>"></span>
                     <div id="text_<?php echo $i;$i++;?>"></div>
-                    <?php } ?>
-                    <br><br><br>
+                    <?php }
+                    if(get_option('mo_openid_admin_email'))
+                        $email=get_option('mo_openid_admin_email');
+                    else
+                        $email = get_option('admin_email');
+                        ?>
+                    <br>
+                    Email: <input type="text" id="mo_feedback_email" name="mo_feedback_email" value="<?php echo $email?>"/>
+                    <br><br>
                     <div class="mo_openid_modal-footer" >
-
                         <?php
                         update_option( 'mo_openid_message',"ERROR_WHILE_SUBMITTING_QUERY");
                         mo_openid_show_success_message();
                         ?>
                         <input type="submit" name="submit" class="button button-primary button-large" value="submit" />
-
                     </div>
                 </div>
             </form>

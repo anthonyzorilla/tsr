@@ -246,7 +246,9 @@ class MEC_feature_ix extends MEC_base
         $posts = array();
         if(strtolower($extension) == 'xml')
         {
-            $XML = simplexml_load_string($file->read($feed));
+            $xml_string = str_replace(':i:', 'iii', $file->read($feed));
+
+            $XML = simplexml_load_string($xml_string);
             if($XML === false) return false;
 
             foreach($XML->children() as $event)
@@ -258,8 +260,8 @@ class MEC_feature_ix extends MEC_base
                 $mec = $event->mec;
 
                 // Event location
-                $location = $event->locations->item[0];
-                $location_id = isset($location->name) ? $main->save_location(array
+                $location = ($event->locations ? $event->locations->item[0] : NULL);
+                $location_id = ($location and isset($location->name)) ? $main->save_location(array
                 (
                     'name'=>trim((string) $location->name),
                     'address'=>(string) $location->address,
@@ -269,8 +271,8 @@ class MEC_feature_ix extends MEC_base
                 )) : 1;
 
                 // Event Organizer
-                $organizer = $event->organizers->item[0];
-                $organizer_id = isset($organizer->name) ? $main->save_organizer(array
+                $organizer = ($event->organizers ? $event->organizers->item[0] : NULL);
+                $organizer_id = ($organizer and isset($organizer->name)) ? $main->save_organizer(array
                 (
                     'name'=>trim((string) $organizer->name),
                     'email'=>(string) $organizer->email,
@@ -438,6 +440,7 @@ class MEC_feature_ix extends MEC_base
                 (
                     'title'=> (string) $event->title,
                     'content'=> (string) $event->content,
+                    'status'=> (string) ($event->post ? $event->post->post_status : 'publish'),
                     'location_id'=>$location_id,
                     'organizer_id'=>$organizer_id,
                     'date'=>array
@@ -2714,7 +2717,7 @@ class MEC_feature_ix extends MEC_base
         $start_date = isset($this->ix['google_import_start_date']) ? $this->ix['google_import_start_date'] : 'Today';
         $end_date = (isset($this->ix['google_import_end_date']) and trim($this->ix['google_import_end_date'])) ? $this->ix['google_import_end_date'] : 'Tomorrow';
 
-        if(!trim($api_key) or !trim($calendar_id)) return array('success'=>0, 'error'=>__('Both of API key and Calendar ID are required!', 'modern-events-calendar-lite'));
+        if(!trim($api_key) or !trim($calendar_id)) return array('success'=>0, 'error'=>__('API key and Calendar ID are required!', 'modern-events-calendar-lite'));
         
         // Save options
         $this->main->save_ix_options(array('google_import_api_key'=>$api_key, 'google_import_calendar_id'=>$calendar_id, 'google_import_start_date'=>$start_date, 'google_import_end_date'=>$end_date));
@@ -2767,12 +2770,12 @@ class MEC_feature_ix extends MEC_base
     public function g_calendar_import_do()
     {
         $g_events = isset($_POST['g-events']) ? $_POST['g-events'] : array();
-        if(!count($g_events)) return array('success'=>0, 'error'=>__('Please select some events to import!', 'modern-events-calendar-lite'));
+        if(!count($g_events)) return array('success'=>0, 'error'=>__('Please select events to import!', 'modern-events-calendar-lite'));
         
         $api_key = isset($this->ix['google_import_api_key']) ? $this->ix['google_import_api_key'] : NULL;
         $calendar_id = isset($this->ix['google_import_calendar_id']) ? $this->ix['google_import_calendar_id'] : NULL;
         
-        if(!trim($api_key) or !trim($calendar_id)) return array('success'=>0, 'error'=>__('Both of API key and Calendar ID are required!', 'modern-events-calendar-lite'));
+        if(!trim($api_key) or !trim($calendar_id)) return array('success'=>0, 'error'=>__('API key and Calendar ID are required!', 'modern-events-calendar-lite'));
 
         // Timezone
         $timezone = $this->main->get_timezone();
@@ -3128,7 +3131,7 @@ class MEC_feature_ix extends MEC_base
         $api_key = isset($this->ix['meetup_api_key']) ? $this->ix['meetup_api_key'] : NULL;
         $group_url = isset($this->ix['meetup_group_url']) ? $this->ix['meetup_group_url'] : NULL;
 
-        if(!trim($api_key) or !trim($group_url)) return array('success'=>0, 'error'=>__('Both of API key and Group URL are required!', 'modern-events-calendar-lite'));
+        if(!trim($api_key) or !trim($group_url)) return array('success'=>0, 'error'=>__('API key and Group URL are required!', 'modern-events-calendar-lite'));
 
         // Save options
         $this->main->save_ix_options(array('meetup_api_key'=>$api_key, 'meetup_group_url'=>$group_url));
@@ -3186,12 +3189,12 @@ class MEC_feature_ix extends MEC_base
     public function meetup_import_do()
     {
         $m_events = isset($_POST['m-events']) ? $_POST['m-events'] : array();
-        if(!count($m_events)) return array('success'=>0, 'error'=>__('Please select some events to import!', 'modern-events-calendar-lite'));
+        if(!count($m_events)) return array('success'=>0, 'error'=>__('Please select events to import!', 'modern-events-calendar-lite'));
 
         $api_key = isset($this->ix['meetup_api_key']) ? $this->ix['meetup_api_key'] : NULL;
         $group_url = isset($this->ix['meetup_group_url']) ? $this->ix['meetup_group_url'] : NULL;
 
-        if(!trim($api_key) or !trim($group_url)) return array('success'=>0, 'error'=>__('Both of API key and Group URL are required!', 'modern-events-calendar-lite'));
+        if(!trim($api_key) or !trim($group_url)) return array('success'=>0, 'error'=>__('API key and Group URL are required!', 'modern-events-calendar-lite'));
 
         // Timezone
         $timezone = $this->main->get_timezone();
@@ -3619,7 +3622,7 @@ class MEC_feature_ix extends MEC_base
         $calendar_id = isset($ix['google_export_calendar_id']) ? $ix['google_export_calendar_id'] : NULL;
         $auth_url = '';
 
-        if(!trim($client_id) or !trim($client_secret) or !trim($calendar_id)) $this->main->response(array('success'=>0, 'message'=>__('All of Client ID, Client Secret and Calendar ID are required!', 'modern-events-calendar-lite')));
+        if(!trim($client_id) or !trim($client_secret) or !trim($calendar_id)) $this->main->response(array('success'=>0, 'message'=>__('All of Client ID, Client Secret, and Calendar ID are required!', 'modern-events-calendar-lite')));
         
         // Save options
         $this->main->save_ix_options(array('google_export_client_id'=>$client_id, 'google_export_client_secret'=>$client_secret, 'google_export_calendar_id'=>$calendar_id));
@@ -3642,7 +3645,7 @@ class MEC_feature_ix extends MEC_base
             $this->main->response(array('success'=>0, 'message'=>$ex->getMessage()));
         }
         
-        $this->main->response(array('success'=>1, 'message'=>sprintf(__('All seems good! Please click %s for authenticating your app.', 'modern-events-calendar-lite'), '<a href="'.$auth_url.'">here</a>')));
+        $this->main->response(array('success'=>1, 'message'=>sprintf(__('All seems good! Please click %s to authenticate your app.', 'modern-events-calendar-lite'), '<a href="'.$auth_url.'">'.__('here', 'modern-events-calendar-lite').'</a>')));
     }
     
     public function g_calendar_export_get_token()
@@ -3663,7 +3666,7 @@ class MEC_feature_ix extends MEC_base
             $client->setClientId($client_id);
             $client->setClientSecret($client_secret);
             $client->setRedirectUri($this->main->add_qs_vars(array('mec-ix-action'=>'google-calendar-export-get-token'), $this->main->URL('backend').'admin.php?page=MEC-ix&tab=MEC-g-calendar-export'));
-            
+
             $authentication = $client->authenticate($code);
         	$token = $client->getAccessToken();
             
@@ -3696,7 +3699,7 @@ class MEC_feature_ix extends MEC_base
         $refresh_token = isset($ix['google_export_refresh_token']) ? $ix['google_export_refresh_token'] : NULL;
         $calendar_id = isset($ix['google_export_calendar_id']) ? $ix['google_export_calendar_id'] : NULL;
         
-        if(!trim($client_id) or !trim($client_secret) or !trim($calendar_id)) $this->main->response(array('success'=>0, 'message'=>__('All of Client App, Client Secret and Calendar ID are required!', 'modern-events-calendar-lite')));
+        if(!trim($client_id) or !trim($client_secret) or !trim($calendar_id)) $this->main->response(array('success'=>0, 'message'=>__('Client App, Client Secret, and Calendar ID are all required!', 'modern-events-calendar-lite')));
         
         $client = new Google_Client();
         $client->setApplicationName('Modern Events Calendar');
@@ -3732,25 +3735,46 @@ class MEC_feature_ix extends MEC_base
             $organizer = isset($data->organizers[$data->meta['mec_organizer_id']]) ? $data->organizers[$data->meta['mec_organizer_id']] : array();
 
             $recurrence = $this->main->get_ical_rrules($data);
-            
-            $event = new Google_Service_Calendar_Event(array
+
+            $start_time = sprintf("%02d", $data->meta['mec_start_time_hour']).':';
+            $start_time .= sprintf("%02d", $data->meta['mec_start_time_minutes']).' ';
+            $start_time .= $data->meta['mec_start_time_ampm'];
+
+            $start = array(
+                'dateTime'=>date('Y-m-d\TH:i:s', strtotime($date['start']['date'].' '.$start_time)).$gmt_offset,
+                'timeZone'=>$timezone,
+            );
+
+            $end_time = sprintf("%02d", $data->meta['mec_end_time_hour']).':';
+            $end_time .= sprintf("%02d", $data->meta['mec_end_time_minutes']).' ';
+            $end_time .= $data->meta['mec_end_time_ampm'];
+
+            $end = array(
+                'dateTime'=>date('Y-m-d\TH:i:s', strtotime($date['end']['date'].' '.$end_time)).$gmt_offset,
+                'timeZone'=>$timezone,
+            );
+
+            $allday = isset($data->meta['mec_allday']) ? $data->meta['mec_allday'] : 0;
+            if($allday)
+            {
+                $start['dateTime'] = date('Y-m-d\T00:00:00', strtotime($start['dateTime'])).$gmt_offset;
+                $end['dateTime'] = date('Y-m-d\T00:00:00', strtotime('+1 Day', strtotime($end['dateTime']))).$gmt_offset;
+            }
+
+            // Event Data
+            $event_data = array
             (
                 'summary'=>$data->title,
                 'location'=>(isset($location['address']) ? $location['address'] : (isset($location['name']) ? $location['name'] : '')),
                 'description'=>strip_tags(strip_shortcodes($data->content)),
-                'start'=>array(
-                    'dateTime'=>date('Y-m-d\TH:i:s', strtotime($date['start']['date'].' '.$data->time['start'])).$gmt_offset,
-                    'timeZone'=>$timezone,
-                ),
-                'end'=>array(
-                    'dateTime'=>date('Y-m-d\TH:i:s', strtotime($date['end']['date'].' '.$data->time['end'])).$gmt_offset,
-                    'timeZone'=>$timezone,
-                ),
+                'start'=>$start,
+                'end'=>$end,
                 'recurrence'=>$recurrence,
                 'attendees'=>array(),
                 'reminders'=>array(),
-            ));
-            
+            );
+
+            $event = new Google_Service_Calendar_Event($event_data);
             $iCalUID = 'mec-ical-'.$data->ID;
             
             $mec_iCalUID = get_post_meta($data->ID, 'mec_gcal_ical_uid', true);
@@ -3781,6 +3805,7 @@ class MEC_feature_ix extends MEC_base
                 
                 // Set Google Calendar ID to MEC databse for updating it in the future instead of adding it twice
                 update_post_meta($data->ID, 'mec_gcal_ical_uid', $g_event->getICalUID());
+                update_post_meta($data->ID, 'mec_gcal_calendar_id', $calendar_id);
                 update_post_meta($data->ID, 'mec_gcal_id', $g_event->getId());
                 
                 $g_events_inserted[] = array('title'=>$data->title, 'message'=>$g_event->htmlLink);
@@ -3794,9 +3819,24 @@ class MEC_feature_ix extends MEC_base
                     {
                         $g_event_id = get_post_meta($data->ID, 'mec_gcal_id', true);
                         $g_event = $service->events->get($calendar_id, $g_event_id);
-                        foreach($event as $k=>$v) $g_event->$k = $v;
 
-                        $g_updated_event = $service->events->update($calendar_id, $g_event->getId(), $g_event);
+                        // Update Event Data
+                        $g_event->setSummary($event_data['summary']);
+                        $g_event->setLocation($event_data['location']);
+                        $g_event->setDescription($event_data['description']);
+                        $g_event->setRecurrence($event_data['recurrence']);
+
+                        $start = new Google_Service_Calendar_EventDateTime();
+                        $start->setDateTime($event_data['start']['dateTime']);
+                        $start->setTimeZone($event_data['start']['timeZone']);
+                        $g_event->setStart($start);
+
+                        $end = new Google_Service_Calendar_EventDateTime();
+                        $end->setDateTime($event_data['end']['dateTime']);
+                        $end->setTimeZone($event_data['end']['timeZone']);
+                        $g_event->setEnd($end);
+
+                        $g_updated_event = $service->events->update($calendar_id, $g_event_id, $g_event);
                         $g_events_updated[] = array('title'=>$data->title, 'message'=>$g_updated_event->htmlLink);
                     }
                     catch(Exception $ex)
@@ -3812,8 +3852,8 @@ class MEC_feature_ix extends MEC_base
         foreach($g_events_not_inserted as $g_event_not_inserted) $results .= '<li><strong>'.$g_event_not_inserted['title'].'</strong>: '.$g_event_not_inserted['message'].'</li>';
         $results .= '<ul>';
         
-        $message = (count($g_events_inserted) ? sprintf(__('%s events added to Google Calendar successfully.', 'modern-events-calendar-lite'), '<strong>'.count($g_events_inserted).'</strong>') : '');
-        $message .= (count($g_events_updated) ? ' '.sprintf(__('%s previously added events get updated.', 'modern-events-calendar-lite'), '<strong>'.count($g_events_updated).'</strong>') : '');
+        $message = (count($g_events_inserted) ? sprintf(__('%s events added to Google Calendar with success.', 'modern-events-calendar-lite'), '<strong>'.count($g_events_inserted).'</strong>') : '');
+        $message .= (count($g_events_updated) ? ' '.sprintf(__('%s Updated previously added events.', 'modern-events-calendar-lite'), '<strong>'.count($g_events_updated).'</strong>') : '');
         $message .= (count($g_events_not_inserted) ? ' '.sprintf(__('%s events failed to add for following reasons: %s', 'modern-events-calendar-lite'), '<strong>'.count($g_events_not_inserted).'</strong>', $results) : '');
         
         $this->main->response(array('success'=>((count($g_events_inserted) or count($g_events_updated)) ? 1 : 0), 'message'=>trim($message)));
@@ -3853,9 +3893,16 @@ class MEC_feature_ix extends MEC_base
         $this->main->save_ix_options(array('facebook_app_token'=>$this->fb_access_token));
         
         $fb_page = $this->f_calendar_import_get_page($fb_page_link);
-        
+
         $fb_page_id = isset($fb_page['id']) ? $fb_page['id'] : 0;
-        if(!$fb_page_id) return array('success'=>0, 'message'=>__("We couldn't recognize your Facebook page. Please check it and provide us a valid Facebook page link.", 'modern-events-calendar-lite'));
+        if(!$fb_page_id)
+        {
+            $message = __("We were not able to recognize your Facebook page. Please check again and provide a valid link.", 'modern-events-calendar-lite');
+            if(isset($fb_page['error']) and isset($fb_page['error']['message'])) $message = $fb_page['error']['message'];
+
+            return array('success'=>0, 'message'=>$message);
+        }
+
         $events = array();
         $next_page = 'https://graph.facebook.com/v3.2/'.$fb_page_id.'/events/?access_token='.$this->fb_access_token;
         
@@ -3883,7 +3930,7 @@ class MEC_feature_ix extends MEC_base
     public function f_calendar_import_do()
     {
         $f_events = isset($_POST['f-events']) ? $_POST['f-events'] : array();
-        if(!count($f_events)) return array('success'=>0, 'message'=>__('Please select some events to import!', 'modern-events-calendar-lite'));
+        if(!count($f_events)) return array('success'=>0, 'message'=>__('Please select events to import!', 'modern-events-calendar-lite'));
         
         $fb_page_link = isset($this->ix['facebook_import_page_link']) ? $this->ix['facebook_import_page_link'] : NULL;
         $this->fb_access_token = isset($this->ix['facebook_app_token']) ? $this->ix['facebook_app_token'] : NULL;
@@ -3892,7 +3939,7 @@ class MEC_feature_ix extends MEC_base
         $fb_page = $this->f_calendar_import_get_page($fb_page_link);
         
         $fb_page_id = isset($fb_page['id']) ? $fb_page['id'] : 0;
-        if(!$fb_page_id) return array('success'=>0, 'message'=>__("We couldn't recognize your Facebook page. Please check it and provide us a valid facebook page link.", 'modern-events-calendar-lite'));
+        if(!$fb_page_id) return array('success'=>0, 'message'=>__("We were not able to recognize your Facebook page. Please check again and provide a valid link.", 'modern-events-calendar-lite'));
 
         // Timezone
         $timezone = $this->main->get_timezone();
@@ -4036,7 +4083,7 @@ class MEC_feature_ix extends MEC_base
             
             if(!has_post_thumbnail($post_id) and isset($photos['cover']) and is_array($photos['cover']) and count($photos['cover']))
             {
-                $photo = $this->main->get_web_page('https://graph.facebook.com/'.$photos['cover']['id'].'/picture?type=normal');
+                $photo = $this->main->get_web_page($photos['cover']['source']);
                 $file_name = md5($post_id).'.'.$this->main->get_image_type_by_buffer($photo);
                 
                 $path = rtrim($wp_upload_dir['path'], DS.' ').DS.$file_name;

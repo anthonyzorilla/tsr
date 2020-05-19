@@ -1,17 +1,17 @@
-﻿=== WordPress Social Login (Facebook, Google, Twitter) ===
+﻿=== WordPress Social Login (Google, Twitter, Vkontakte) ===
 Contributors: vkontakte, sociallogin, cyberlord92
 Donate link: https://www.miniorange.com
-Tags: social login, facebook login, google login, twitter login, Vkontakte login, social, facebook, twitter, google, login, google, social connect, social network login, social plugin, Vkontakte, LinkedIn
+Tags: social login, facebook login, google login, twitter login, Vkontakte login, Woocommerce, social, facebook, twitter, google, login, google, social connect, social network login, social plugin, Vkontakte, LinkedIn
 Requires at least: 2.0.2
-Tested up to: 5.3
-Stable tag: 7.3.2
+Tested up to: 5.4
+Stable tag: 7.3.7
 License URI: http://miniorange.com/usecases/miniOrange_User_Agreement.pdf
 
 Social Login with Google, Facebook, Apple, Twitter, Reddit, Vkontakte, LinkedIn and more. GDPR compliant. Social sharing and social comments. 24x7 Support.
 
 == Description ==
 
-Social Login enables social login, social sharing, social comments using social login apps like Google, Facebook, Twitter, Vkontakte, LinkedIn, Windows Live, Instagram, Amazon, Salesforce, Yahoo, WordPress, apple, disqus, pinterest, spotify, reddit, tumblr, twitch, vimeo, kakao, discord, dribbble, flickr, line, meetup, stackexchange, livejournal, snapchat, foursquare, teamsnap, naver, odnoklassniki.
+Social Login enables social login, social sharing, social comments using social login apps like Google, Facebook, Twitter, Vkontakte, LinkedIn, Windows Live, Instagram, Amazon, Salesforce, Yahoo, WordPress, apple, Paypal, disqus, pinterest, spotify, reddit, tumblr, twitch, vimeo, kakao, discord, dribbble, flickr, line, meetup, stackexchange, livejournal, snapchat, foursquare, teamsnap, naver, odnoklassniki.
 
 = Free Social Login Features =
 
@@ -37,6 +37,7 @@ Social Login enables social login, social sharing, social comments using social 
 *	**Icon Customizations** - customize shape, theme, space & size of social sharing icons.
 *	**Preview is available for Social Sharing icons**
 *	Add Social Comments using Facebook.
+*	Add Social Comments using Disqus.
 *   Add social sharing icons on homepage, posts, feeds, content pages, WooCommerce product page etc.
 *	Add a horizontal social sharing widget.
 *   Add a floating vertical social sharing widget.
@@ -44,7 +45,7 @@ Social Login enables social login, social sharing, social comments using social 
 
 = Premium Social Login Features =
 
-*   Social Login with Google, Facebook, Twitter, Vkontakte, LinkedIn, Windows Live, Instagram, Amazon, Salesforce, Yahoo, WordPress, apple, disqus, pinterest, spotify, reddit, tumblr, twitch, vimeo, kakao, discord, dribbble, flickr, line, meetup, stackexchange, livejournal, snapchat, foursquare, teamsnap, naver, odnoklassniki.
+*   Social Login with Google, Facebook, Twitter, Vkontakte, LinkedIn, Windows Live, Instagram, Amazon, Salesforce, Yahoo, WordPress, apple, Paypal, disqus, pinterest, spotify, reddit, tumblr, twitch, vimeo, kakao, discord, dribbble, flickr, line, meetup, stackexchange, livejournal, snapchat, foursquare, teamsnap, naver, odnoklassniki.
 *	GDPR compliant Social Login.
 *   **Account Linking** - Link social account to WordPress account
 *	**Woocommerce display options** - Enable social login icons on the Woocommerce Checkout, Login, Registration pages.
@@ -68,9 +69,10 @@ Social Login enables social login, social sharing, social comments using social 
 
 = How is this plugin better than other plugins available =
 * **Support for 10 apps in free plan** - Social Login with Facebook, Google, Twitter, LinkedIn, Instagram, Vkontakte, Windows Live, Amazon, Salesforce, Yahoo all available in the free plan.
+* **No need to set up custom app just register with us and use our pre-configured application.
 * **Setup in seconds** - miniOrange Social Login removes the hassle of creating your own application in all the social media. In any other social login plugin, if you are providing login with a social login application, google for example, you will need an App ID for which you will need to create an entire application in google. So if you want to provide login with 10 different social applications then you need to go and create 10 applications in those social platforms. Using our plugin, Social Login, Social Sharing by miniOrange, you do not need to do that. Just by creating one registration with us, you get Social login plus other features.
 * **Icon Customizations** - Beautiful icon customisations for Social Login and Social Sharing are available in our free plan where you can use a range of UI options like shape, size and theme. You get to choose from the following shapes - square, circle, rounded and long. You get to choose from the following themes - default, filled background, without background. Additionally you can customize the curve of the long buttons.
-* **Free Support** - Social Login, Social Sharing plugin has in-plugin support available. Sending us a query is just a button-lick away.
+* **Free Support** - Social Login, Social Sharing plugin has in-plugin support available. Sending us a query is just a button-click away.
 
 Social Login allows your visitors to comment, share, login and register with many Social Media applications.
 Social Login provides different display options with beautiful login button customizations which other plugins do not provide(CSS knowledge is also not needed!).
@@ -177,6 +179,28 @@ Please email us at info@miniorange.com. You can also submit your query from the 
 
 
 == Changelog ==
+= 7.3.7 =
+* Updated facebook insrtuctions.
+* Minor UI changes.
+* New Licensing plan.
+* Added feature to select role by the user in the Add-on.
+* Added Paypal app in premium applications.
+* Advertised Ultimate membership display options.
+
+= 7.3.6 =
+* Minor UI changes.
+
+= 7.3.5 =
+* Compatable with WordPress version 5.4
+* Minor UI changes.
+
+= 7.3.4 =
+* Minor UI changes.
+
+= 7.3.3 =
+* Minor UI changes.
+* Fixed add-on update value issue.
+
 = 7.3.2 =
 * Updated Yahoo API.
 * Updated feedback on deactivation.
@@ -689,6 +713,28 @@ SECURITY FIXES
 * First version of Social Login, Social Sharing plugin.
 
 == Upgrade Notice ==
+= 7.3.7 =
+* Updated facebook insrtuctions.
+* Minor UI changes.
+* New Licensing plan.
+* Added feature to select role by the user in the Add-on.
+* Added Paypal app in premium applications.
+* Advertised Ultimate membership display options.
+
+= 7.3.6 =
+* Minor UI changes.
+
+= 7.3.5 =
+* Compatable with WordPress version 5.4
+* Minor UI changes.
+
+= 7.3.4 =
+* Minor UI changes.
+
+= 7.3.3 =
+* Minor UI changes.
+* Fixed add-on update value issue.
+
 = 7.3.2 =
 * Updated Yahoo API.
 * Updated feedback on deactivation.

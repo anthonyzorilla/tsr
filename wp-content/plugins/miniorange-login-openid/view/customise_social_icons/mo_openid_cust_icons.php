@@ -24,13 +24,9 @@ function mo_openid_customise_social_icons(){
                         <label class="mo-openid-radio-container"><?php echo mo_sl('Long Button');?>
                             <input type="radio" id="mo_openid_login_shape_longbutton" name="mo_openid_login_theme" value="longbutton" onclick="shape_change();checkLoginButton();moLoginPreview(document.getElementById('mo_login_icon_width').value ,'longbutton',setLoginCustomTheme(),document.getElementById('mo_login_icon_custom_color').value,document.getElementById('mo_login_icon_space').value,document.getElementById('mo_login_icon_height').value,document.getElementById('mo_login_icon_custom_boundary').value)" <?php checked( get_option('mo_openid_login_theme') == 'longbutton' );?> /><br>
                             <span class="mo-openid-radio-checkmark"></span></label>
-
-
                     </div>
                     <div style="float: right; width: 50%;">
                         <label style="font-size: 1.2em;"><b><?php echo mo_sl('Theme');?></b><br></label>
-
-
                         <label class="mo-openid-radio-container"><?php echo mo_sl('Default');?>
                             <input type="radio" id="mo_openid_default_background_radio" name="mo_openid_login_custom_theme"
                                    value="default" onclick="checkLoginButton();moLoginPreview(setSizeOfIcons(), setLoginTheme(),'default',document.getElementById('mo_login_icon_custom_color').value,document.getElementById('mo_login_icon_space').value,document.getElementById('mo_login_icon_height').value,document.getElementById('mo_login_icon_custom_boundary').value)"
@@ -205,7 +201,27 @@ function mo_openid_customise_social_icons(){
                     }
                     ?>
                 </div>
-            </div>
+            </div><br/>
+                <div style="border: 1px solid"><br>
+                    <b style="font-size: 17px;"><?php echo mo_sl('Custom CSS');?> <a style="left: 1%; position: relative; text-decoration: none" class="mo-openid-premium" href="<?php echo add_query_arg( array('tab' => 'licensing_plans'), $_SERVER['REQUEST_URI'] ); ?>"><?php echo mo_sl('PRO');?></a></b>
+                        <textarea disabled type="text" id="mo_openid_custom_css" style="resize: vertical; width:400px; height:180px;  margin:5% auto;" rows="6" name="mo_openid_custom_css"></textarea><br/><b>Example CSS:</b>
+                        <p>NOTE: Please keep the class name same as example CSS.</p>
+                        <pre>
+     .mo_login_button {
+	 width:100%;
+	 height:50px;
+	 padding-top:15px;
+	 padding-bottom:15px;
+	 margin-bottom:-1px;
+	 border-radius:4px;
+	 background: #7272dc;
+	 text-align:center;
+	 font-size:16px;
+	 color:#fff;
+	 margin-bottom:5px;
+ }
+                            </pre>
+                </div>
             </center>
             </div>
         </div>
